@@ -1,0 +1,898 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Bartleby of Wall Street</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: one gaslit ledger-frame holding the canvas; the HUD sits on it like marginalia, dialogue arrives on a manuscript sheet. Single deliberate (dark) theme. */
+:root{
+  --walnut:#1d1612; --panel:#2a211a; --panel-2:#372b21; --line:#5a4830;
+  --paper:#eadfc6; --paper-dim:#b5a688; --sheet:#ede3cb; --sheet-ink:#2a1d13;
+  --brass:#c9a24a; --brass-dim:#7d6633; --blood:#b2412f; --inkblue:#5a86b3; --sage:#8fae6f;
+  --display:"IM Fell English","Iowan Old Style",Georgia,serif;
+  --sc:"IM Fell English SC","IM Fell English",Georgia,serif;
+  --body:"Spectral",Georgia,"Times New Roman",serif;
+  color-scheme:dark;
+}
+html{height:100%;box-sizing:border-box;background:var(--walnut)}
+body{height:100%;margin:0;background:var(--walnut);color:var(--paper);font-family:var(--body);overflow:hidden}
+#app{height:100%;box-sizing:border-box;padding-block:10px;padding-inline:16px;display:flex;flex-direction:column;gap:8px}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:6px 16px;flex-wrap:wrap}
+.brand{font-family:var(--sc);font-size:18px;letter-spacing:.05em;color:var(--brass)}
+.brand span{color:var(--paper-dim);font-family:var(--display);font-style:italic;letter-spacing:0;font-size:14px;margin-left:6px}
+.keys{font-size:12px;color:var(--paper-dim);letter-spacing:.01em}
+.keys b{font-weight:600;color:var(--paper)}
+#frame{position:relative;flex:1;min-height:0;border:1px solid var(--brass-dim);border-radius:3px;overflow:hidden;background:#0f0b08}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+
+/* HUD */
+.box{background:rgba(26,19,14,.86);border:1px solid var(--line);border-radius:2px;padding:8px 10px;box-sizing:border-box}
+#stats{position:absolute;left:10px;top:10px;width:min(250px,calc(50% - 16px))}
+#quest{position:absolute;right:10px;top:10px;width:min(310px,calc(50% - 16px))}
+.who{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.who .n{font-family:var(--display);font-size:17px;line-height:1.1}
+.who .r{font-family:var(--sc);font-size:11.5px;color:var(--brass);letter-spacing:.04em;text-align:right}
+.bar{position:relative;height:9px;background:#0d0a08;border:1px solid #4a3c2c;margin-top:6px}
+.bar i{position:absolute;inset:0 auto 0 0;display:block;background:var(--blood);transition:width .12s linear}
+.bar.ink i{background:var(--inkblue)} .bar.xp{height:4px} .bar.xp i{background:var(--brass)}
+.bar em{position:absolute;right:4px;top:-15px;font-style:normal;font-size:11px;color:var(--paper-dim);font-variant-numeric:tabular-nums}
+.lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--paper-dim);margin-top:8px;font-variant-numeric:tabular-nums;gap:6px}
+.lbl b{color:var(--paper);font-weight:600}
+.clock{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-variant-numeric:tabular-nums}
+.clock .t{font-family:var(--display);font-size:17px}
+.clock .d{font-family:var(--sc);font-size:11.5px;color:var(--paper-dim);letter-spacing:.04em}
+.mer{font-size:11.5px;font-style:italic;color:var(--paper-dim);margin-top:2px;line-height:1.3}
+.qn{font-family:var(--sc);font-size:13px;color:var(--brass);letter-spacing:.03em;margin-top:8px;padding-top:7px;border-top:1px solid var(--line)}
+.qo{font-size:13.5px;line-height:1.35;margin-top:2px}
+.qw{font-size:11.5px;color:var(--paper-dim);font-style:italic}
+#boss{position:absolute;left:50%;transform:translateX(-50%);top:10px;width:min(380px,calc(100% - 40px));text-align:center}
+#boss .bn{font-family:var(--sc);font-size:14px;letter-spacing:.04em;color:var(--paper)}
+#boss .bar{height:10px} #boss .bar i{background:#7f5aa8}
+#prompt{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-family:var(--display);font-size:16px;padding:6px 14px;white-space:nowrap;max-width:calc(100% - 32px);overflow:hidden;text-overflow:ellipsis}
+#prompt kbd{font-family:var(--body);font-size:12px;border:1px solid var(--brass-dim);border-radius:2px;padding:0 5px;margin-right:6px;color:var(--brass)}
+#toasts{position:absolute;left:50%;top:26%;transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none;width:calc(100% - 32px)}
+.toast{font-family:var(--display);font-size:clamp(16px,2.4vw,22px);text-align:center;color:var(--paper);text-shadow:0 1px 0 #000,0 0 12px rgba(0,0,0,.9);animation:tin 2.8s ease forwards;text-wrap:balance}
+.toast.gold{color:var(--brass);font-family:var(--sc);letter-spacing:.04em}
+@keyframes tin{0%{opacity:0;transform:translateY(6px)}10%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+
+/* Dialogue sheet */
+#dialog{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);width:min(660px,calc(100% - 24px));background:var(--sheet);color:var(--sheet-ink);border-radius:2px;box-shadow:0 10px 30px rgba(0,0,0,.6),inset 0 0 0 1px #c8b88f;padding:14px 18px 12px;box-sizing:border-box;max-height:calc(100% - 24px);overflow:auto;background-image:repeating-linear-gradient(transparent 0 25px,rgba(90,110,150,.13) 25px 26px)}
+#dialog .spk{font-family:var(--sc);font-size:13px;letter-spacing:.06em;color:#7b2d20;min-height:1em}
+#dialog .txt{font-family:var(--display);font-size:clamp(17px,2.2vw,20px);line-height:1.4;margin-top:4px;text-wrap:pretty}
+#dialog .txt em{font-style:italic;color:#4a3a2a}
+#dialog .opts{display:grid;gap:6px;margin-top:12px}
+#dialog button{all:unset;box-sizing:border-box;cursor:pointer;font-family:var(--body);font-size:14.5px;line-height:1.35;padding:7px 10px;border:1px solid #9f8a5f;border-radius:2px;background:rgba(255,255,255,.35);color:var(--sheet-ink)}
+#dialog button:hover{background:rgba(255,255,255,.7)}
+#dialog button:focus-visible{outline:2px solid #7b2d20;outline-offset:1px}
+#dialog button.cont{justify-self:end;font-family:var(--sc);letter-spacing:.05em;font-size:13px;border-color:#7b2d20;color:#7b2d20}
+#dialog button .k{color:#9b8256;margin-right:6px;font-size:12px}
+
+/* Touch */
+#touch{position:absolute;left:0;right:0;bottom:0;height:160px;pointer-events:none}
+#stick{pointer-events:auto;position:absolute;left:16px;bottom:16px;width:124px;height:124px;border-radius:50%;border:1px solid rgba(201,162,74,.5);background:rgba(26,19,14,.4);touch-action:none}
+#knob{position:absolute;left:50%;top:50%;width:50px;height:50px;border-radius:50%;background:rgba(201,162,74,.55);transform:translate(-50%,-50%)}
+#pads{pointer-events:auto;position:absolute;right:14px;bottom:14px;display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(2,58px);gap:8px;touch-action:none}
+.pad{all:unset;box-sizing:border-box;border-radius:50%;border:1px solid var(--brass-dim);background:rgba(26,19,14,.62);color:var(--paper);font-family:var(--sc);font-size:11.5px;letter-spacing:.03em;display:grid;place-items:center;text-align:center;line-height:1.05;user-select:none;-webkit-user-select:none}
+.pad:active,.pad.on{background:rgba(201,162,74,.45)}
+.pad.big{grid-row:span 2;grid-column:3;border-color:var(--brass);font-size:13px}
+.touchmode #prompt{bottom:178px}
+.touchmode #dialog{bottom:12px}
+
+/* Title & ending */
+.cover{position:absolute;inset:0;overflow:auto;background:radial-gradient(120% 90% at 50% 0%,rgba(55,42,30,.86),rgba(20,15,11,.97) 70%);padding-block:28px;padding-inline:16px;box-sizing:border-box}
+.cover .inner{max-width:980px;margin:0 auto;display:grid;gap:18px}
+.cover h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(46px,9vw,92px);line-height:.9;letter-spacing:-.01em;text-wrap:balance}
+.cover h1 small{display:block;font-family:var(--sc);font-size:clamp(16px,2.4vw,22px);letter-spacing:.12em;color:var(--brass);margin-top:10px}
+.lede{font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,19px);line-height:1.45;max-width:62ch;color:#d8caa8;margin:0}
+.eyebrow{font-family:var(--sc);font-size:12.5px;letter-spacing:.12em;color:var(--paper-dim);margin:0}
+.classes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}
+.cls{all:unset;box-sizing:border-box;cursor:pointer;display:grid;gap:9px;align-content:start;padding:14px;border:1px solid var(--line);background:var(--panel);border-radius:2px;min-width:0}
+.cls:hover{border-color:var(--brass-dim)}
+.cls:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.cls[aria-pressed="true"]{border-color:var(--brass);background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--brass)}
+.cls .top{display:flex;gap:10px;align-items:center;min-width:0}
+.cls canvas{width:58px;height:58px;flex:none;background:#14100c;border:1px solid var(--line)}
+.cls .nm{font-family:var(--display);font-size:21px;line-height:1.05}
+.cls .rl{font-family:var(--sc);font-size:12px;color:var(--brass);letter-spacing:.04em}
+.cls .st{font-size:12px;color:var(--paper-dim);font-variant-numeric:tabular-nums}
+.moves{display:grid;grid-template-columns:auto 1fr;gap:3px 9px;margin:0;font-size:13px;line-height:1.3}
+.moves dt{font-family:var(--sc);color:var(--paper-dim);font-size:12px;letter-spacing:.03em}
+.moves dd{margin:0}
+.passive{font-size:12.5px;font-style:italic;color:var(--paper-dim);line-height:1.35}
+.quote{font-family:var(--display);font-style:italic;font-size:14.5px;line-height:1.35;color:#d9cba9;border-top:1px solid var(--line);padding-top:8px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.go{all:unset;box-sizing:border-box;cursor:pointer;font-family:var(--sc);font-size:16px;letter-spacing:.08em;background:var(--brass);color:#1d1612;padding:11px 24px;border-radius:2px}
+.go:hover{background:#d8b45c}
+.go.alt{background:transparent;color:var(--paper);border:1px solid var(--brass-dim)}
+.go:focus-visible{outline:2px solid var(--paper);outline-offset:2px}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px 24px;font-size:13px;color:var(--paper-dim);line-height:1.45}
+.how h3{margin:0 0 2px;font-family:var(--sc);font-weight:400;font-size:13px;color:var(--paper);letter-spacing:.05em}
+.how p{margin:0}
+#ending h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(36px,6.5vw,68px);line-height:1;text-wrap:balance}
+#ending p{max-width:62ch;margin:0;line-height:1.55;font-size:15.5px}
+#ending .coda{font-family:var(--display);font-size:18px;font-style:italic;color:#d8caa8}
+.ledger{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);max-width:640px}
+.ledger div{background:var(--panel);padding:10px 12px}
+.ledger dt{font-family:var(--sc);font-size:11.5px;letter-spacing:.06em;color:var(--paper-dim)}
+.ledger dd{margin:2px 0 0;font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+
+@media (max-width:640px){
+  .keys{display:none}
+  #stats,#quest{padding:6px 8px}
+  .who .n{font-size:15px} .clock .t{font-size:15px}
+  .mer,.qw{display:none}
+  .qo{font-size:12.5px}
+  #boss{top:auto;bottom:186px}
+  .qn{margin-top:5px;padding-top:5px}
+}
+@media (prefers-reduced-motion:reduce){.toast{animation-duration:3.2s}}
+</style>
+
+<div id="app">
+  <header>
+    <div class="brand">Bartleby of Wall Street<span>a tale of the chambers, 1853</span></div>
+    <div class="keys" id="keys"><b>WASD</b> move · <b>Mouse</b> aim · <b>Left click / J</b> strike · <b>Right click / K</b> throw · <b>Space</b> special · <b>E</b> speak · <b>Q</b> eat a ginger-nut</div>
+  </header>
+  <div id="frame">
+    <canvas id="cv" aria-label="Game view"></canvas>
+
+    <div id="hud" hidden>
+      <div id="stats" class="box">
+        <div class="who"><span class="n" id="hName">The Lawyer</span><span class="r" id="hRank">Rank 1</span></div>
+        <div class="bar" style="margin-top:16px"><i id="hHp"></i><em id="hHpT">0</em></div>
+        <div class="bar ink" style="margin-top:16px"><i id="hInk"></i><em id="hInkT">0</em></div>
+        <div class="bar xp" style="margin-top:6px"><i id="hXp"></i></div>
+        <div class="lbl"><span>Ginger-nuts <b id="hNuts">0</b></span><span>Special <b id="hSp">Ready</b></span></div>
+      </div>
+      <div id="quest" class="box">
+        <div class="clock"><span class="t" id="hClock">9:00 a.m.</span><span class="d" id="hDay">Day 1</span></div>
+        <div class="mer" id="hMer"></div>
+        <div class="qn" id="qName">I. Examine the Papers</div>
+        <div class="qo" id="qObj"></div>
+        <div class="qw" id="qWhere"></div>
+      </div>
+      <div id="boss" class="box" hidden><div class="bn" id="bossName"></div><div class="bar"><i id="bossBar"></i></div></div>
+      <div id="prompt" class="box" hidden></div>
+      <div id="touch" hidden>
+        <div id="stick"><div id="knob"></div></div>
+        <div id="pads">
+          <button class="pad" id="pTalk">Speak</button>
+          <button class="pad" id="pEat">Eat</button>
+          <button class="pad big" id="pStrike">Strike</button>
+          <button class="pad" id="pSpecial">Special</button>
+          <button class="pad" id="pThrow">Throw</button>
+        </div>
+      </div>
+    </div>
+    <div id="toasts" aria-live="polite"></div>
+
+    <div id="dialog" hidden role="dialog" aria-live="polite">
+      <div class="spk" id="dSpk"></div>
+      <div class="txt" id="dTxt"></div>
+      <div class="opts" id="dOpts"></div>
+    </div>
+
+    <section id="title" class="cover">
+      <div class="inner">
+        <h1>Bartleby<small>of Wall Street · in five quests</small></h1>
+        <p class="lede">“I am a rather elderly man. The nature of my avocations for the last thirty years has brought me into more than ordinary contact with what would seem an interesting and somewhat singular set of men…” Take up a post in the chambers at No.&nbsp;— Wall-street, and see what may be done about the new scrivener, who would prefer not to.</p>
+        <p class="eyebrow">Choose your clerk</p>
+        <div class="classes" id="classes"></div>
+        <div class="actions">
+          <button class="go" id="begin">Begin the Day</button>
+          <button class="go alt" id="cont" hidden>Continue</button>
+        </div>
+        <div class="how">
+          <div><h3>At a desk</h3><p>WASD or arrows to move, mouse to aim. Left click or J to strike, right click or K to throw. Space or L for your special. E to speak, Q to eat a ginger-nut.</p></div>
+          <div><h3>On a phone</h3><p>Drag the left disc to walk. Throws aim themselves at the nearest foe. Speak when the name appears at the bottom.</p></div>
+          <div><h3>The hours</h3><p>The office clock runs from nine to six. Turkey grows fierce and careless after noon; Nippers is at his sharpest before it.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ending" class="cover" hidden>
+      <div class="inner">
+        <p class="eyebrow">The tale is told</p>
+        <h2>Ah Bartleby! Ah humanity!</h2>
+        <p>Some months after, a rumor reached the chambers. Bartleby, it was said, had been a subordinate clerk in the Dead Letter Office at Washington, and had been suddenly removed by a change in the administration. Letters sent in haste and hope, never reaching their mark, sorted for the flames.</p>
+        <p class="coda">“Dead letters! does it not sound like dead men?”</p>
+        <dl class="ledger" id="ledger"></dl>
+        <div class="actions">
+          <button class="go" id="wander">Wander on</button>
+          <button class="go alt" id="again">Begin again</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+"use strict";
+(function(){
+const $=s=>document.querySelector(s);
+const cv=$('#cv'), ctx=cv.getContext('2d'), frame=$('#frame');
+const TAU=Math.PI*2, PI=Math.PI;
+const rand=(a,b)=>a+Math.random()*(b-a);
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const hyp=Math.hypot;
+const pick=a=>a[Math.random()*a.length|0];
+function angDiff(a,b){let d=a-b;while(d>PI)d-=TAU;while(d<-PI)d+=TAU;return d;}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function mix(a,b,t){const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16);const r=Math.round(lerp(pa>>16,pb>>16,t)),g=Math.round(lerp(pa>>8&255,pb>>8&255,t)),bl=Math.round(lerp(pa&255,pb&255,t));return'rgb('+r+','+g+','+bl+')';}
+function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
+function circ(g,x,y,r){g.beginPath();g.arc(x,y,r,0,TAU);}
+const R=(x,y,w,h)=>({x,y,w,h});
+function circleRect(cx,cy,r,o){const nx=clamp(cx,o.x,o.x+o.w),ny=clamp(cy,o.y,o.y+o.h);const dx=cx-nx,dy=cy-ny;return dx*dx+dy*dy<r*r;}
+
+/* ---------------- Classes ---------------- */
+const CL={
+  lawyer:{name:'The Lawyer',role:'Balanced · Control',hp:120,speed:165,coat:'#25272c',face:'#e6c9a6',hair:'#cfc8bb',hat:'top',scale:1,
+    melee:{name:'Cane Rap',dmg:16,range:58,arc:1.5,cd:.45},
+    ranged:{name:'Writ of Ejectment',dmg:18,speed:430,cd:.7,ink:9,pierce:3,kind:'writ',r:8},
+    special:{name:'Doctrine of Assumptions',cd:9,ink:25,desc:'Every foe nearby is stunned for 2.5s.'},
+    passive:'Prudence and Method: takes 15% less harm.',
+    quote:'“…from his youth upwards, has been filled with a profound conviction that the easiest way of life is the best.”'},
+  turkey:{name:'Turkey',role:'Brawler · Afternoon',hp:150,speed:148,coat:'#3a2e29',face:'#e6c2a0',hair:'#ddd8cf',hat:null,scale:1.08,
+    melee:{name:'Ruler Swing',dmg:24,range:64,arc:1.9,cd:.6},
+    ranged:{name:'Ink Blot',dmg:11,speed:330,cd:.75,ink:6,kind:'blot',r:8},
+    special:{name:'Afternoon Fury',cd:12,ink:20,desc:'For 4s, strikes land twice as hard and twice as fast.'},
+    passive:'Meridian: after noon, strikes +50%, but thrown ink flies wild.',
+    quote:'“…in the afternoon I put myself at their head, and gallantly charge the foe, thus!”'},
+  nippers:{name:'Nippers',role:'Skirmisher · Morning',hp:100,speed:178,coat:'#2e3a33',face:'#d6c49c',hair:'#2a1d14',hat:null,scale:1,
+    melee:{name:'Elbow Jab',dmg:11,range:50,arc:1.2,cd:.3},
+    ranged:{name:'Flung Nib',dmg:13,speed:540,cd:.32,ink:4,kind:'nib',r:5},
+    special:{name:'Desk Adjustment',cd:10,ink:24,desc:'A fit of temper: nibs fly in every direction.'},
+    passive:'Indigestion: before noon, throws 40% faster.',
+    quote:'“…the victim of two evil powers — ambition and indigestion.”'},
+  ginger:{name:'Ginger Nut',role:'Swift · Errand Boy',hp:95,speed:208,coat:'#6a4a2a',face:'#f0cfa8',hair:'#8a4a24',hat:'cap',hatc:'#7a2f22',scale:.84,
+    melee:{name:'Spitzenberg Smack',dmg:10,range:48,arc:1.3,cd:.3},
+    ranged:{name:'Ginger-Nut Toss',dmg:9,speed:450,cd:.27,ink:3,kind:'cake',r:5},
+    special:{name:'Cake Run',cd:8,ink:15,desc:'Dash ahead, untouchable, and eat as you go: heals 25.'},
+    passive:'Errand Boy: finds twice as many ginger-nuts.',
+    quote:'A lad of some twelve years, at the rate of one dollar a week: student at law, errand boy, cleaner and sweeper.'}
+};
+const RANKS=['','Copyist','Engrossing Clerk','Senior Copyist','Conveyancer','Notary','Solicitor','Counsellor','Master in Chancery (abolished)'];
+const rankName=l=>RANKS[l]||'Of Counsel';
+
+/* ---------------- Maps ---------------- */
+const MAPS={
+  chambers:{w:1100,h:760,name:'The Chambers',
+    shell:[R(0,0,1100,24),R(0,736,500,24),R(600,736,500,24),R(0,0,24,760),R(1076,0,24,760),R(640,24,14,276),R(640,420,14,316)],
+    furn:[{t:'desk',v:'turkey',...R(120,110,140,60)},{t:'desk',v:'nippers',...R(330,110,140,60)},{t:'desk',v:'ginger',...R(120,520,90,50)},
+      {t:'desk',v:'lawyer',...R(800,450,170,70)},{t:'desk',v:'bartleby',...R(980,40,80,40)},{t:'screen',...R(880,210,170,12)},
+      {t:'shelf',...R(690,24,160,30)},{t:'safe',...R(1004,620,56,86)},{t:'stove',...R(560,40,40,40)},{t:'press',...R(40,300,40,60)}],
+    doors:[{...R(500,742,100,18),to:'street',sx:260,sy:160}],
+    spawns:[[80,80],[540,300],[300,420],[110,690],[760,300],[860,670],[560,560],[420,640]],
+    labels:[[550,726,'Wall-street ↓']]},
+  street:{w:1600,h:640,name:'Wall-street',
+    shell:[R(0,0,1600,110),R(0,550,1600,90),R(0,110,30,440),R(1580,110,20,440)],
+    furn:[{t:'stall',...R(640,110,130,34)},{t:'cart',...R(880,300,130,56)},{t:'barrel',...R(420,470,36,36)},{t:'barrel',...R(1180,168,36,36)},{t:'barrel',...R(1220,180,30,30)},
+      {t:'lamp',...R(360,146,10,10)},{t:'lamp',...R(1000,146,10,10)},{t:'lamp',...R(560,506,10,10)},{t:'lamp',...R(1300,506,10,10)}],
+    doors:[{...R(220,96,80,22),to:'chambers',sx:550,sy:690},{...R(1560,270,40,120),to:'tombs',sx:90,sy:394,locked:()=>G.q<14}],
+    spawns:[[500,330],[800,470],[1100,250],[1350,450],[1450,200],[300,450],[1040,460],[700,300]],
+    labels:[[260,132,'No. — Wall-street'],[60,330,'Trinity'],[1518,248,'The Tombs →']]},
+  tombs:{w:1000,h:760,name:'The Tombs',
+    shell:[R(0,0,1000,44),R(0,716,1000,44),R(0,44,44,290),R(0,454,44,262),R(956,0,44,760)],
+    furn:[{t:'pillar',...R(250,150,44,44)},{t:'pillar',...R(706,150,44,44)},{t:'pillar',...R(250,566,44,44)},{t:'pillar',...R(706,566,44,44)}],
+    doors:[{...R(0,334,30,120),to:'street',sx:1500,sy:330}],
+    spawns:[[500,110],[500,650],[860,380],[420,380],[620,380],[150,640],[860,110]],
+    labels:[[70,320,'← Wall-street']]}
+};
+for(const k in MAPS){const M=MAPS[k];M.walls=M.shell.concat(M.furn);}
+const START={chambers:[550,680],street:[260,160],tombs:[90,394]};
+const DEEDS=[[70,420],[500,64],[720,700],[300,690]];
+
+/* ---------------- Enemies ---------------- */
+const ET={
+  blot:{name:'Ink Blot',hp:22,speed:72,r:14,dmg:10,xp:10},
+  writ:{name:'Stray Writ',hp:14,speed:135,r:11,dmg:7,xp:8},
+  clerk:{name:'Rival Copyist',hp:32,speed:88,r:13,dmg:8,xp:16},
+  murmur:{name:'Murmur of the Bar',hp:26,speed:108,r:15,dmg:6,xp:14},
+  letter:{name:'Dead Letter',hp:16,speed:125,r:11,dmg:8,xp:12},
+  master:{name:'Ghost of the Master in Chancery',hp:440,speed:58,r:32,dmg:16,xp:160,boss:1},
+  committee:{name:"The Landlord's Committee",hp:620,speed:66,r:36,dmg:18,xp:240,boss:1}
+};
+
+/* ---------------- State ---------------- */
+const G={mode:'title',cls:null,p:null,map:'chambers',q:0,qk:0,deeds:[false,false,false,false],enemies:[],shots:[],items:[],parts:[],rings:[],texts:[],
+  min:540,day:1,kills:0,spawnT:3,shake:0,fade:0,time:0,askd:{},gingerGift:false,bTxtT:0};
+
+function newPlayer(cls){const c=CL[cls];return{x:550,y:680,r:13,hp:c.hp,maxhp:c.hp,ink:100,maxink:100,lvl:1,xp:0,face:-PI/2,walk:0,cd:{m:0,r:0,s:0},iframe:0,furyT:0,dashT:0,dashA:0,swing:null,nuts:2,msgT:0};}
+const isPM=()=>G.min>=720;
+const dmgMult=()=>1+0.12*(G.p.lvl-1);
+const xpNeed=l=>60+40*l;
+
+function mkEnemy(type,x,y){const t=ET[type],L=G.p?G.p.lvl:1;const hp=Math.round(t.hp*(1+(t.boss?0.15:0.12)*(L-1)));
+  return{type,x,y,hp,maxhp:hp,r:t.r,speed:t.speed,dmg:t.dmg*(1+0.08*(L-1)),xp:t.xp,t:rand(0,10),cd:rand(.8,1.6),cd2:5,cd3:6,stun:0,flash:0,kx:0,ky:0,charge:0,chargeA:0,boss:!!t.boss,name:t.name,phase:rand(0,TAU),dead:false};}
+
+/* ---------------- NPCs ---------------- */
+const NPCS=[
+  {id:'lawyer',name:'The Lawyer',map:'chambers',x:770,y:486,cond:()=>G.cls!=='lawyer',solid:1},
+  {id:'docket',name:'Your Docket',map:'chambers',x:772,y:486,cond:()=>G.cls==='lawyer',solid:0},
+  {id:'turkey',name:'Turkey',map:'chambers',x:190,y:192,cond:()=>G.cls!=='turkey',solid:1},
+  {id:'nippers',name:'Nippers',map:'chambers',x:400,y:192,cond:()=>G.cls!=='nippers',solid:1},
+  {id:'ginger',name:'Ginger Nut',map:'chambers',x:165,y:592,cond:()=>G.cls!=='ginger',solid:1},
+  {id:'bartleby',name:'Bartleby',get map(){return G.q>=14?'tombs':'chambers';},get x(){return G.q>=14?912:1022;},get y(){return G.q>=14?668:140;},cond:()=>G.q<19,solid:1},
+  {id:'cake',name:'The Cake-Woman',map:'street',x:705,y:166,solid:1},
+  {id:'grub',name:'The Grub-Man',map:'tombs',x:180,y:182,solid:1}
+];
+const activeNPCs=()=>NPCS.filter(n=>n.map===G.map&&(!n.cond||n.cond()));
+function bartlebyHere(){const b=NPCS[5];return b.map===G.map&&G.q<19?b:null;}
+
+/* ---------------- Quests ---------------- */
+const QN=['I. Examine the Papers','II. Ginger-Nuts','III. Rumours of the Bar','IV. Quit the Premises','V. The Tombs'];
+const toLaw=()=>G.cls==='lawyer'?'Consult your docket':'Report to the Lawyer';
+const OBJ=[
+  [0,()=>'Ask Bartleby to examine the copies with you','Chambers, behind the green screen','bartleby'],
+  [0,()=>`Recover the scattered copies of the deed (${G.deeds.filter(Boolean).length}/4)`,'About the chambers','deed'],
+  [0,()=>G.cls==='lawyer'?'Return the copies to your desk':'Return the copies to the Lawyer','Chambers','lawyer'],
+  [0,()=>'Lay the Ghost of the Master in Chancery to rest','Chambers','boss'],
+  [1,toLaw,'Chambers','lawyer'],
+  [1,()=>'Find the cake stand','Wall-street, just along from your door','cake'],
+  [1,()=>`Rout the rival copyists (${G.qk}/6)`,'Wall-street',null],
+  [1,()=>'Collect the parcel from the Cake-Woman','Wall-street','cake'],
+  [1,()=>'Bring the ginger-nuts to Bartleby','Chambers','bartleby'],
+  [2,toLaw,'Chambers','lawyer'],
+  [2,()=>`Silence the murmurs of the Bar (${G.qk}/10)`,'The chambers or Wall-street',null],
+  [2,()=>'Reason with Bartleby','Chambers','bartleby'],
+  [3,toLaw,'Chambers','lawyer'],
+  [3,()=>"Face the Landlord's Committee",'Wall-street','boss'],
+  [3,()=>'Go to the Tombs','The iron gate, east end of Wall-street','gate'],
+  [4,()=>'Find the grub-man','The Tombs','grub'],
+  [4,()=>'Find Bartleby in the yard','The Tombs','bartleby'],
+  [4,()=>`Drive off the dead letters (${G.qk}/12)`,'The Tombs',null],
+  [4,()=>'Return to Bartleby','The Tombs','bartleby']
+];
+
+function setQ(n){const old=G.q;G.q=n;G.qk=0;
+  if(old<OBJ.length&&n<OBJ.length&&OBJ[n][0]>OBJ[old][0]){toast('Quest '+QN[OBJ[old][0]]+' — complete','gold');setTimeout(()=>toast('Quest '+QN[OBJ[n][0]]),1400);}
+  if(n===1)placeItems();
+  checkBoss();save();hudT=0;}
+
+function spawnCfg(){const m=G.map,q=G.q;
+  if(m==='chambers'){if(q===3)return{types:[],max:0};if(q===10)return{types:['murmur','murmur','blot'],max:5,rate:1.8};if(q===1)return{types:['blot','blot','writ'],max:5,rate:2};return{types:['blot','writ'],max:q>=14?2:3,rate:2.8};}
+  if(m==='street'){if(q===13)return{types:[],max:0};if(q===6)return{types:['clerk','clerk','writ'],max:6,rate:1.8};if(q===10)return{types:['murmur','clerk','writ','murmur'],max:6,rate:1.8};return{types:['writ','clerk','writ'],max:4,rate:2.6};}
+  if(m==='tombs'){if(q===17)return{types:['letter'],max:7,rate:1.3};if(q===18)return{types:[],max:0};return{types:['letter'],max:2,rate:4};}
+  return{types:[],max:0};}
+
+/* ---------------- Dialogue ---------------- */
+const dlg=$('#dialog'),dSpk=$('#dSpk'),dTxt=$('#dTxt'),dOpts=$('#dOpts');
+let DQ=null;
+function say(lines,done){DQ={lines,i:0,done};G.mode='dialog';dlg.hidden=false;renderDlg();}
+function closeDlg(){DQ=null;dlg.hidden=true;if(G.mode==='dialog')G.mode='play';for(const k in keys)keys[k]=false;}
+function renderDlg(){const L=DQ.lines[DQ.i];dSpk.textContent=L.s||'';dTxt.innerHTML=L.t;dOpts.innerHTML='';
+  if(L.opts){L.opts.forEach((o,i)=>{const b=document.createElement('button');b.innerHTML='<span class="k">'+(i+1)+'</span>'+o.l;b.onclick=()=>{closeDlg();o.fn();};dOpts.appendChild(b);});}
+  else{const b=document.createElement('button');b.className='cont';b.textContent=DQ.i<DQ.lines.length-1?'Continue ›':'Close';b.onclick=nextDlg;dOpts.appendChild(b);}
+  const f=dOpts.querySelector('button');if(f&&!isTouch)f.focus({preventScroll:true});}
+function nextDlg(){if(!DQ)return;DQ.i++;if(DQ.i>=DQ.lines.length){const d=DQ.done;closeDlg();d&&d();}else renderDlg();}
+
+const B='Bartleby';
+const LW=()=>G.cls==='lawyer'?'Your own reflections':'The Lawyer';
+const PREFER=['“I would prefer not to.”','“I prefer not to.”','“At present I prefer to give no answer.”','<em>He stands looking out at the dead brick wall, three feet beyond the pane.</em>','“Do you not see the reason for yourself?”'];
+
+function talk(n){const q=G.q;
+  switch(n.id){
+  case 'bartleby':
+    if(q===0)return say([
+      {s:'You',t:'“Bartleby! Quick, I am waiting. Come forward and help examine these four copies.”'},
+      {s:B,t:'<em>In a singularly mild, firm voice:</em> “I would prefer not to.”'},
+      {s:'You',t:'“Prefer not to? What do you mean? Are you moon-struck?”',opts:[
+        {l:'“These are your own copies. Why do you refuse?”',fn:()=>say([{s:B,t:'“I would prefer not to.”'},{s:LW(),t:'In the confusion the four copies have scattered about the chambers, and something in the inkstands has woken. Gather them up.'}],()=>setQ(1))},
+        {l:'Leave him be, and gather the copies yourself',fn:()=>say([{s:LW(),t:'The four copies have scattered about the chambers, and something in the inkstands has woken. Gather them up.'}],()=>setQ(1))}]}]);
+    if(q===8)return say([{s:'',t:'<em>You set the parcel of ginger-nuts on the corner of his desk. He does not look round from the window.</em>'},{s:'You',t:'“Will you not take your dinner, Bartleby?”'},{s:B,t:'“I would prefer not to.”'},{s:'',t:'<em>And yet, a little later, one ginger-nut is gone.</em>'}],()=>setQ(9));
+    if(q===11)return reason();
+    if(q===16)return say([{s:'You',t:'“Bartleby, it is I.”'},{s:B,t:'<em>Without looking round:</em> “I know you, and I want nothing to say to you.”'},{s:'You',t:'“It is not so sad a place as one might think. Look, there is the sky, and here is the grass.”'},{s:B,t:'“I know where I am.”'},{s:'',t:'<em>Over the high walls, envelopes come drifting down like leaves — dead letters, undeliverable, black at the edges.</em>'}],()=>setQ(17));
+    if(q===18)return ending();
+    if(G.map==='tombs')return say([{s:B,t:pick(['“I know where I am.”','<em>He stands with his face toward the high wall.</em>','“I prefer not to dine to-day.”'])}]);
+    return say([{s:B,t:pick(PREFER)}]);
+  case 'lawyer':case 'docket':{const S=LW();
+    if(q===0)return say([{s:S,t:'Bartleby has been with us three days. A small affair: four copies of a deed to be examined against the original. Call him out from behind his screen.'}]);
+    if(q===1)return say([{s:S,t:'The copies are somewhere in these chambers. Mind the inkstands — something has got into them.'}]);
+    if(q===2)return say([{s:S,t:'All four copies — blotted, but legible.'},{s:S,t:'And yet a chill is coming off the old Chancery files. The new Constitution abolished the office of Master in Chancery: a premature act, I have always held, for I had counted on a life-lease of the profits.'},{s:S,t:'It appears the office does not care to stay abolished.'}],()=>setQ(3));
+    if(q===3)return say([{s:S,t:'Lay that ghost to rest!'}]);
+    if(q===4)return say([{s:S,t:'Have you remarked it? He never goes to dinner. So far as anyone can see, he lives on ginger-nuts.'},{s:S,t:'Go out to Wall-street and ask at the cake stand for a parcel. Whatever the man is, he shall not starve at my desk.'}],()=>setQ(5));
+    if(q>=5&&q<=7)return say([{s:S,t:'The cake stand is on Wall-street, a few doors along from ours.'}]);
+    if(q===8)return say([{s:S,t:'Take the parcel to him. Set it down quietly; he does not like to be watched.'}]);
+    if(q===9)return say([{s:S,t:'A whisper of wonder is running round among all my professional friends: a strange creature kept at my office.'},{s:S,t:'Clients come and he will not stir; the talk spreads. Go about the chambers and the street, and put down these murmurs before they ruin me.'}],()=>setQ(10));
+    if(q===10)return say([{s:S,t:'The murmurs are thickest here and on the street. Silence them.'}]);
+    if(q===11)return say([{s:S,t:'Speak with him once more. Reason with him, if reason will serve.'}]);
+    if(q===12)return say([{s:S,t:'Since he will not quit me, I must quit him. I shall change my offices.'},{s:S,t:'But word is out already. The landlord has gathered a committee of tenants on Wall-street, waving notices to quit. Meet them.'}],()=>setQ(13));
+    if(q===13)return say([{s:S,t:'They are out on Wall-street. Go.'}]);
+    if(q>=14&&q<19)return say([{s:S,t:'The Tombs. Go to him; I cannot.'}]);
+    return say([{s:S,t:'The tale is told. The office is quieter now than one would wish.'}]);}
+  case 'turkey':
+    return say([{s:'Turkey',t:pick(['“Prefer not, eh? Say the word, sir, and I’ll step behind his screen and black his eyes for him!”','“With submission, sir, my ink-blots are the work of the afternoon, not of the man.”'])},{s:'',t:'<em>His face is '+(isPM()?'blazing like a grate full of Christmas coals.':'a fine florid hue; it is still morning.')+'</em>'}]);
+  case 'nippers':
+    return say([{s:'Nippers',t:pick(['“I think I should kick him out of the office.”','“This desk is a quarter-inch too high. Again.”'])},{s:'',t:'<em>'+(isPM()?'It is afternoon; he is comparatively mild.':'He grinds his teeth and adjusts the legs of his table with bits of pasteboard.')+'</em>'}]);
+  case 'ginger':
+    if(!G.gingerGift){G.gingerGift=true;G.p.nuts=Math.min(9,G.p.nuts+2);return say([{s:'Ginger Nut',t:'“I think, sir, he’s a little luny.”'},{s:'',t:'<em>He presses two ginger-nuts into your hand. (Q to eat one.)</em>'}]);}
+    return say([{s:'Ginger Nut',t:pick(['“I think, sir, he’s a little luny.”','“Ginger-nuts, sir? He eats nothing else. I’ve watched.”'])}]);
+  case 'cake':
+    if(q===5)return say([{s:n.name,t:'“Ginger-nuts? Not a one left at the counter. The copyists from the next building have been helping themselves — six of ’em, bold as brass.”'},{s:n.name,t:'“Run ’em off and the parcel’s yours.”'}],()=>setQ(6));
+    if(q===6)return say([{s:n.name,t:'“Still at it, they are. Run ’em off!”'}]);
+    if(q===7){G.p.nuts=Math.min(9,G.p.nuts+4);return say([{s:n.name,t:'“There’s his parcel. And four for your own pocket, for the trouble.”'}],()=>setQ(8));}
+    if(G.p.nuts<3){G.p.nuts++;return say([{s:n.name,t:'“Ginger-nuts, and Spitzenbergs from the stalls by the Custom House. Here — one on account.”'}]);}
+    return say([{s:n.name,t:'“Ginger-nuts, and Spitzenbergs from the stalls by the Custom House.”'}]);
+  case 'grub':
+    if(q===15)return say([{s:n.name,t:'“I’m the grub-man. Such gentlemen as have friends here hire me to provide them with something good to eat.”',opts:[
+      {l:'Press a coin into his hand. “Give him the best dinner you can.”',fn:()=>say([{s:n.name,t:'“Your sarvant, sir, your sarvant. He’s by the far wall, sir — fronting it, like.”'}],()=>setQ(16))},
+      {l:'“Where is he?”',fn:()=>say([{s:n.name,t:'“The quiet one? By the far wall, sir. Odd, ain’t he?”'}],()=>setQ(16))}]}]);
+    if(q>=16&&q<19)return say([{s:n.name,t:'“He won’t eat, sir. Says he prefers not to dine to-day.”'}]);
+    return say([{s:n.name,t:'“Mind the yard, sir. ’Tis the Halls of Justice.”'}]);
+  }}
+
+function reason(){const asked=G.askd;
+  const all=[
+    {k:'self',l:'“Will you tell me anything about yourself?”',r:'“I would prefer not to.”'},
+    {k:'money',l:'Lay twenty dollars on his desk. “Will you go?”',r:'<em>He does not look at the coins.</em> “I would prefer not to.”'},
+    {k:'reason',l:'“Say you will help examine papers tomorrow. Only be a little reasonable.”',r:'“At present I would prefer not to be a little reasonable.”'},
+    {k:'clerk',l:'“A clerkship in a dry-goods store? Bar-tending? Travel to Europe as a companion?”',r:'“No, I would not like a clerkship; but I am not particular.”'}];
+  const opts=all.filter(a=>!asked[a.k]).map(a=>({l:a.l,fn:()=>{asked[a.k]=1;say([{s:B,t:a.r}],reason);}}));
+  const n=Object.keys(asked).length;
+  if(n>=1)opts.push({l:n>=4?'There is nothing more to say.':'Give it up for today.',fn:()=>say([{s:'',t:'<em>He has not moved from behind his screen.</em>'}],()=>setQ(12))});
+  say([{s:'You',t:n?'<em>You try another way.</em>':'“Bartleby, I must speak with you plainly.”',opts}]);}
+
+function ending(){G.bartLying=true;
+  say([{s:'',t:'<em>Strangely huddled at the base of the wall, his knees drawn up, and lying on his side, his head touching the cold stones, you see the wasted Bartleby.</em>'},
+    {s:'The Grub-Man',t:'“His dinner is ready. Won’t he dine to-day, either? Eh! — He’s asleep, ain’t he?”'},
+    {s:'You',t:'“With kings and counselors.”'}],()=>{G.q=19;save();showEnding();});}
+
+/* ---------------- Toasts ---------------- */
+function toast(t,cls){const el=document.createElement('div');el.className='toast'+(cls?' '+cls:'');el.textContent=t;$('#toasts').appendChild(el);setTimeout(()=>el.remove(),2900);}
+
+/* ---------------- Input ---------------- */
+const keys={};const mouse={x:0,y:0,active:false,t:0,b0:false,b2:false};
+const touch={m:false,r:false};const stick={x:0,y:0,id:null};
+let isTouch=matchMedia('(pointer:coarse)').matches;
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();
+  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)&&G.mode!=='title')e.preventDefault();
+  if(G.mode==='dialog'){if(e.repeat)return;if(k==='enter'||k===' '||k==='e'){const b=dOpts.querySelector('button.cont');if(b){e.preventDefault();b.click();}}else if(/^[1-9]$/.test(k)){const b=dOpts.querySelectorAll('button')[+k-1];if(b)b.click();}return;}
+  if(G.mode!=='play')return;
+  keys[k]=true;if(e.repeat)return;
+  if(k==='e')interact();if(k==='q')eat();if(k===' '||k==='l')trySpecial();});
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouse.b0=mouse.b2=false;touch.m=touch.r=false;});
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const r=cv.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;mouse.active=true;mouse.t=performance.now();});
+cv.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'){setTouch(true);return;}const r=cv.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;mouse.active=true;mouse.t=performance.now();if(e.button===0)mouse.b0=true;if(e.button===2)mouse.b2=true;});
+addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')return;if(e.button===0)mouse.b0=false;if(e.button===2)mouse.b2=false;});
+const stickEl=$('#stick'),knob=$('#knob');
+stickEl.addEventListener('pointerdown',e=>{e.preventDefault();stick.id=e.pointerId;stickEl.setPointerCapture(e.pointerId);moveStick(e);});
+stickEl.addEventListener('pointermove',e=>{if(e.pointerId===stick.id)moveStick(e);});
+const endStick=e=>{if(e.pointerId===stick.id){stick.id=null;stick.x=stick.y=0;knob.style.transform='translate(-50%,-50%)';}};
+stickEl.addEventListener('pointerup',endStick);stickEl.addEventListener('pointercancel',endStick);
+function moveStick(e){const r=stickEl.getBoundingClientRect();let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);const m=r.width/2,l=hyp(dx,dy);if(l>m){dx*=m/l;dy*=m/l;}stick.x=dx/m;stick.y=dy/m;knob.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;}
+function holdPad(id,on,off){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId);}catch(_){}el.classList.add('on');on();});const up=()=>{el.classList.remove('on');off&&off();};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('contextmenu',e=>e.preventDefault());}
+holdPad('#pStrike',()=>touch.m=true,()=>touch.m=false);
+holdPad('#pThrow',()=>touch.r=true,()=>touch.r=false);
+holdPad('#pSpecial',()=>{if(G.mode==='play')trySpecial();});
+holdPad('#pTalk',()=>{if(G.mode==='dialog'){const b=dOpts.querySelector('button.cont');if(b)b.click();}else interact();});
+holdPad('#pEat',()=>eat());
+function setTouch(v){isTouch=v;frame.classList.toggle('touchmode',v);$('#touch').hidden=!v;}
+
+function interact(){if(G.mode!=='play')return;const n=nearNPC();if(n)talk(n);}
+function nearNPC(){let best=null,bd=88;for(const n of activeNPCs()){const d=hyp(n.x-G.p.x,n.y-G.p.y);if(d<bd){bd=d;best=n;}}return best;}
+
+/* ---------------- Player actions ---------------- */
+function aimAngle(){const p=G.p;
+  if(mouse.active&&performance.now()-mouse.t<4000&&!isTouch){const w=screenToWorld(mouse.x,mouse.y);return Math.atan2(w.y-p.y,w.x-p.x);}
+  let best=null,bd=420;for(const e of G.enemies){const d=hyp(e.x-p.x,e.y-p.y);if(d<bd){bd=d;best=e;}}
+  return best?Math.atan2(best.y-p.y,best.x-p.x):p.face;}
+function tryMelee(){const p=G.p,c=CL[G.cls],m=c.melee;if(p.cd.m>0)return;
+  let mult=dmgMult();if(G.cls==='turkey'&&isPM())mult*=1.5;if(p.furyT>0)mult*=2;
+  p.cd.m=m.cd*(p.furyT>0?.5:1);const a=aimAngle();p.face=a;p.swing={t:.16,a,arc:m.arc,range:m.range};
+  for(const e of G.enemies){if(e.dead)continue;const d=hyp(e.x-p.x,e.y-p.y);if(d<=m.range+e.r&&Math.abs(angDiff(Math.atan2(e.y-p.y,e.x-p.x),a))<=m.arc/2+Math.atan2(e.r,Math.max(d,1)))hitE(e,m.dmg*mult,a,220);}
+  const b=bartlebyHere();if(b){const d=hyp(b.x-p.x,b.y-p.y);if(d<m.range+16&&Math.abs(angDiff(Math.atan2(b.y-p.y,b.x-p.x),a))<m.arc/2+.3)preferNot(b);}}
+function tryRanged(){const p=G.p,c=CL[G.cls],r=c.ranged;if(p.cd.r>0)return;
+  if(p.ink<r.ink){if(p.msgT<=0){text(p.x,p.y-34,'Out of ink','#8fb0d6',12);p.msgT=1;}return;}
+  let a=aimAngle();p.face=a;if(G.cls==='turkey'&&isPM())a+=rand(-.32,.32);
+  p.cd.r=r.cd*(G.cls==='nippers'&&!isPM()?.6:1);p.ink-=r.ink;
+  shoot(p.x+Math.cos(a)*16,p.y+Math.sin(a)*16-4,a,r.speed,r.dmg*dmgMult(),'p',r.kind,r.r,r.pierce||1);}
+function shoot(x,y,a,spd,dmg,from,kind,r,pierce){G.shots.push({x,y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,a,dmg,from,kind,r:r||6,life:from==='p'?1.3:2.6,pierce:pierce||1,hit:new Set(),hitB:false});}
+function trySpecial(){if(G.mode!=='play')return;const p=G.p,c=CL[G.cls],s=c.special;
+  if(p.cd.s>0){text(p.x,p.y-34,'Not yet','#b5a688',12);return;}
+  if(p.ink<s.ink){text(p.x,p.y-34,'Out of ink','#8fb0d6',12);return;}
+  p.cd.s=s.cd;p.ink-=s.ink;
+  if(G.cls==='lawyer'){G.rings.push({x:p.x,y:p.y,r0:10,r1:220,t:0,life:.5,c:'201,162,74'});let n=0;for(const e of G.enemies){if(hyp(e.x-p.x,e.y-p.y)<220+e.r){e.stun=e.boss?1.2:2.5;n++;}}text(p.x,p.y-40,n?'Assumed. Presumed. Stunned.':'Assumed.','#c9a24a',13);}
+  if(G.cls==='turkey'){p.furyT=4;G.rings.push({x:p.x,y:p.y,r0:10,r1:90,t:0,life:.4,c:'210,70,46'});text(p.x,p.y-40,'Thus!','#e2654a',16);G.shake=6;}
+  if(G.cls==='nippers'){for(let i=0;i<16;i++){const a=i/16*TAU;shoot(p.x,p.y-4,a,500,c.ranged.dmg*dmgMult()*1.1,'p','nib',5,1);}text(p.x,p.y-40,'Grrr — the desk!','#c9d6c0',13);}
+  if(G.cls==='ginger'){p.dashT=.26;p.dashA=(stick.x||stick.y)?Math.atan2(stick.y,stick.x):moveAngle()??aimAngle();const h=Math.min(25,p.maxhp-p.hp);p.hp+=h;if(h>0)text(p.x,p.y-34,'+'+Math.round(h),'#9fc27f',13);}}
+function eat(){const p=G.p;if(!p||G.mode!=='play')return;if(p.nuts<=0){text(p.x,p.y-34,'No ginger-nuts','#b5a688',12);return;}if(p.hp>=p.maxhp){text(p.x,p.y-34,'Not hungry','#b5a688',12);return;}
+  p.nuts--;const h=Math.round(p.maxhp*.3);p.hp=Math.min(p.maxhp,p.hp+h);text(p.x,p.y-34,'+'+h,'#9fc27f',14);for(let i=0;i<6;i++)part(p.x,p.y-10,rand(-60,60),rand(-90,-20),.5,'#9a6a35',2.5);}
+let lastMove=null;
+function moveAngle(){return lastMove;}
+
+function preferNot(b){if(G.bTxtT>0)return;G.bTxtT=.9;text(b.x,b.y-38,pick(['prefers not to','he would prefer not to','(no effect)']),'#ddd8cf',13,true);}
+
+/* ---------------- Combat ---------------- */
+function hitE(e,dmg,a,kb){if(e.dead)return;dmg=Math.max(1,Math.round(dmg*rand(.9,1.1)));e.hp-=dmg;e.flash=.1;
+  if(!e.boss){e.kx=Math.cos(a)*kb;e.ky=Math.sin(a)*kb;}
+  text(e.x,e.y-e.r-8,String(dmg),'#f3e6c4',13);splat(e.x,e.y,4,e.type);
+  if(e.hp<=0)kill(e);}
+function kill(e){e.dead=true;G.kills++;splat(e.x,e.y,e.boss?40:14,e.type);gainXP(e.xp);
+  const chance=(G.cls==='ginger'?.3:.15)*(e.boss?6:1);if(Math.random()<chance)G.items.push({kind:'nut',x:e.x,y:e.y,t:0});
+  if(G.q===6&&e.type==='clerk'){G.qk++;if(G.qk>=6){toast('The copyists are routed');setQ(7);}else hudT=0;}
+  if(G.q===10&&e.type==='murmur'){G.qk++;if(G.qk>=10){toast('The murmurs subside — for now');setQ(11);}else hudT=0;}
+  if(G.q===17&&e.type==='letter'){G.qk++;if(G.qk>=12){clearFoes();toast('The yard is still');setQ(18);}else hudT=0;}
+  if(e.type==='master'&&G.q===3){clearFoes();G.shake=12;setQ(4);}
+  if(e.type==='committee'&&G.q===13){clearFoes();G.shake=12;
+    setTimeout(()=>say([{s:'The Landlord',t:'“You are responsible for the man you left there. He refuses to copy; he refuses to do anything; he says he prefers not to; and he refuses to quit the premises.”'},{s:'The Landlord',t:'“We have had him removed to the Tombs as a vagrant.”'}],()=>{setQ(14);toast('The gate to the Tombs stands open, at the east end of Wall-street');}),500);}}
+function clearFoes(){for(const x of G.enemies){if(!x.dead){x.dead=true;x.hp=0;splat(x.x,x.y,6,x.type);}}G.shots=G.shots.filter(s=>s.from==='p');}
+function gainXP(x){const p=G.p;p.xp+=x;let need=xpNeed(p.lvl);
+  while(p.xp>=need){p.xp-=need;p.lvl++;p.maxhp+=14;p.hp=p.maxhp;p.ink=p.maxink;toast('Advanced: '+rankName(p.lvl),'gold');G.rings.push({x:p.x,y:p.y,r0:10,r1:70,t:0,life:.6,c:'201,162,74'});need=xpNeed(p.lvl);}}
+function hurtP(d){const p=G.p;if(p.iframe>0||p.dashT>0||G.mode!=='play')return;if(G.cls==='lawyer')d*=.85;d=Math.round(d);
+  p.hp-=d;p.iframe=.55;G.shake=Math.max(G.shake,5);text(p.x,p.y-34,'−'+d,'#e2654a',14);
+  if(p.hp<=0)die();}
+function die(){const p=G.p;p.hp=p.maxhp;p.ink=p.maxink;G.min=540;G.day++;changeMap('chambers',START.chambers[0],START.chambers[1]);
+  say([{s:'',t:'<em>You are overcome, and carried home in an omnibus. You wake at your desk the next morning, none the worse — or very little.</em>'}]);}
+
+/* ---------------- Particles & text ---------------- */
+function part(x,y,vx,vy,life,c,s){if(G.parts.length>500)return;G.parts.push({x,y,vx,vy,t:0,life,c,s});}
+function splat(x,y,n,type){const c=type==='writ'||type==='letter'?'#e7dcc2':type==='murmur'?'#8d8a86':type==='committee'?'#2a2a2a':type==='master'?'#a9b8d8':'#141924';
+  for(let i=0;i<n;i++){const a=rand(0,TAU),s=rand(30,160);part(x,y,Math.cos(a)*s,Math.sin(a)*s,rand(.3,.7),c,rand(1.5,3.5));}}
+function text(x,y,s,c,size,it){G.texts.push({x,y,s,c,size:size||13,t:0,life:1,it});}
+
+/* ---------------- Movement ---------------- */
+function moveBox(o,dx,dy,r){const M=MAPS[G.map],W=M.walls;const steps=Math.max(1,Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))/6));const sx=dx/steps,sy=dy/steps;
+  for(let s=0;s<steps;s++){
+    o.x+=sx;for(const w of W){if(o.x+r>w.x&&o.x-r<w.x+w.w&&o.y+r>w.y&&o.y-r<w.y+w.h){if(sx>0)o.x=w.x-r;else if(sx<0)o.x=w.x+w.w+r;}}
+    o.y+=sy;for(const w of W){if(o.x+r>w.x&&o.x-r<w.x+w.w&&o.y+r>w.y&&o.y-r<w.y+w.h){if(sy>0)o.y=w.y-r;else if(sy<0)o.y=w.y+w.h+r;}}}
+  o.x=clamp(o.x,r,M.w-r);o.y=clamp(o.y,r,M.h-r);}
+function pushFromNPCs(o,r){for(const n of activeNPCs()){if(!n.solid)continue;const dx=o.x-n.x,dy=o.y-n.y,d=hyp(dx,dy)||1,m=r+13;if(d<m){o.x=n.x+dx/d*m;o.y=n.y+dy/d*m;}}}
+
+function updPlayer(dt){const p=G.p,c=CL[G.cls];
+  let mx=0,my=0;if(keys.a||keys.arrowleft)mx--;if(keys.d||keys.arrowright)mx++;if(keys.w||keys.arrowup)my--;if(keys.s||keys.arrowdown)my++;
+  mx+=stick.x;my+=stick.y;const ml=hyp(mx,my);
+  if(ml>.15){mx/=Math.max(1,ml);my/=Math.max(1,ml);lastMove=Math.atan2(my,mx);p.face=lastMove;p.walk+=dt*12;}else{lastMove=null;mx=my=0;}
+  if(p.dashT>0){p.dashT-=dt;moveBox(p,Math.cos(p.dashA)*560*dt,Math.sin(p.dashA)*560*dt,p.r);if(Math.random()<.6)part(p.x,p.y,rand(-20,20),rand(-20,20),.3,'#c9a24a',2);}
+  else moveBox(p,mx*c.speed*dt,my*c.speed*dt,p.r);
+  pushFromNPCs(p,p.r);
+  p.cd.m-=dt;p.cd.r-=dt;p.cd.s-=dt;p.iframe-=dt;p.furyT-=dt;p.msgT-=dt;
+  p.ink=Math.min(p.maxink,p.ink+7*dt);
+  if(p.swing){p.swing.t-=dt;if(p.swing.t<=0)p.swing=null;}
+  if(keys.j||mouse.b0||touch.m)tryMelee();
+  if(keys.k||mouse.b2||touch.r)tryRanged();}
+
+function updEnemies(dt){const p=G.p;
+  for(const e of G.enemies){if(e.dead)continue;e.t+=dt;e.flash=Math.max(0,e.flash-dt);
+    if(Math.abs(e.kx)+Math.abs(e.ky)>4){moveBox(e,e.kx*dt,e.ky*dt,e.r*.8);const f=Math.pow(.004,dt);e.kx*=f;e.ky*=f;}else e.kx=e.ky=0;
+    if(e.stun>0){e.stun-=dt;continue;}
+    const dx=p.x-e.x,dy=p.y-e.y,d=hyp(dx,dy)||1,a=Math.atan2(dy,dx);
+    const aggro=e.boss||d<460;let mv=a,sp=e.speed;
+    if(!aggro){mv=e.phase+Math.sin(e.t*.7)*1.2;sp*=.35;}
+    else switch(e.type){
+      case 'writ':mv=a+Math.sin(e.t*5+e.phase)*.9;break;
+      case 'letter':mv=a+Math.sin(e.t*4+e.phase)*.7;sp*=.8+.4*Math.sin(e.t*3);break;
+      case 'clerk':if(d<170)mv=a+PI;else if(d<250){mv=a+PI/2*(Math.sin(e.phase)>0?1:-1);sp*=.6;}
+        e.cd-=dt;if(e.cd<=0&&d<390){e.cd=rand(1.6,2.2);shoot(e.x,e.y-4,a+rand(-.08,.08),255,9*(1+.08*(p.lvl-1)),'e','quill',5);}break;
+      case 'murmur':if(d<80){p.ink=Math.max(0,p.ink-18*dt);if(Math.random()<dt*1.5)text(p.x+rand(-20,20),p.y-44,pick(['…a strange creature…','…kept at his office…','…tsk…']),'#b9b4ad',11,true);}break;
+      case 'master':bossMaster(e,dt,a);break;
+      case 'committee':bossCommittee(e,dt,a);if(e.charge>0){mv=e.chargeA;sp=e.speed*3.8;}break;}
+    moveBox(e,Math.cos(mv)*sp*dt,Math.sin(mv)*sp*dt,e.r*.8);pushFromNPCs(e,e.r*.8);
+    if(d<e.r+p.r-2)hurtP(e.dmg);}
+  const E=G.enemies;
+  for(let i=0;i<E.length;i++)for(let j=i+1;j<E.length;j++){const A=E[i],Bq=E[j];const dx=Bq.x-A.x,dy=Bq.y-A.y,d=hyp(dx,dy)||1,m=(A.r+Bq.r)*.8;
+    if(d<m){const o=(m-d)/2,ux=dx/d,uy=dy/d;if(!A.boss){A.x-=ux*o;A.y-=uy*o;}if(!Bq.boss){Bq.x+=ux*o;Bq.y+=uy*o;}}}
+  G.enemies=G.enemies.filter(e=>!e.dead);}
+
+function bossMaster(e,dt,a){e.cd-=dt;e.cd2-=dt;const enr=e.hp<e.maxhp*.5;
+  if(e.cd<=0){e.cd=enr?1.05:1.45;for(let i=0;i<5;i++)shoot(e.x,e.y-10,a+(i-2)*.22,235,12,'e','ghost',7);
+    if(enr&&Math.random()<.55)for(let i=0;i<12;i++)shoot(e.x,e.y-10,i/12*TAU+e.t,175,10,'e','ghost',7);}
+  if(e.cd2<=0){e.cd2=7;if(G.enemies.length<9){for(let k=0;k<2;k++)G.enemies.push(mkEnemy('blot',e.x+rand(-20,20),e.y+rand(-20,20)));text(e.x,e.y-56,'“Let the record be blotted!”','#c7d2ea',13,true);}}}
+function bossCommittee(e,dt,a){e.cd-=dt;e.cd2-=dt;e.cd3-=dt;if(e.charge>0)e.charge-=dt;
+  if(e.cd<=0){e.cd=e.hp<e.maxhp*.5?1.5:2.1;for(let i=0;i<12;i++)shoot(e.x,e.y-6,i/12*TAU+e.t*.5,205,11,'e','notice',7);}
+  if(e.cd2<=0){e.cd2=6.5;if(G.enemies.length<9){for(let k=0;k<2;k++)G.enemies.push(mkEnemy('murmur',e.x+rand(-20,20),e.y+rand(-20,20)));}}
+  if(e.cd3<=0){e.cd3=7;e.charge=.85;e.chargeA=a;text(e.x,e.y-60,'“Notice to quit!”','#e9dfc8',14,true);}}
+
+function updShots(dt){const p=G.p,M=MAPS[G.map],b=bartlebyHere();
+  for(const s of G.shots){s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;
+    if(s.x<0||s.y<0||s.x>M.w||s.y>M.h){s.life=0;continue;}
+    for(const w of M.walls){if(circleRect(s.x,s.y,s.r*.5,w)){s.life=0;break;}}
+    if(s.life<=0){splat(s.x,s.y,3,s.kind==='blot'?'blot':'writ');continue;}
+    if(s.from==='p'){
+      for(const e of G.enemies){if(e.dead||s.hit.has(e))continue;if(hyp(e.x-s.x,e.y-s.y)<e.r+s.r){s.hit.add(e);hitE(e,s.dmg,Math.atan2(s.vy,s.vx),140);s.pierce--;if(s.pierce<=0){s.life=0;break;}}}
+      if(b&&!s.hitB&&hyp(b.x-s.x,b.y-s.y)<16){s.hitB=true;preferNot(b);}
+    }else if(hyp(p.x-s.x,p.y-s.y)<p.r+s.r-2){hurtP(s.dmg);s.life=0;}}
+  G.shots=G.shots.filter(s=>s.life>0);}
+
+function updItems(dt){const p=G.p;
+  for(const it of G.items){it.t+=dt;if(hyp(it.x-p.x,it.y-p.y)<p.r+14){
+    if(it.kind==='deed'){G.deeds[it.i]=true;it.gone=1;text(it.x,it.y-24,'Copy recovered','#eadfc6',13);hudT=0;if(G.deeds.every(Boolean)&&G.q===1){toast('All four copies recovered');setQ(2);}}
+    else if(it.kind==='nut'){if(p.nuts<9){p.nuts++;it.gone=1;text(it.x,it.y-20,'+1 ginger-nut','#d9a35a',12);}}}}
+  G.items=G.items.filter(i=>!i.gone);}
+function placeItems(){G.items=G.items.filter(i=>i.kind!=='deed');if(G.map==='chambers'&&G.q===1)DEEDS.forEach((d,i)=>{if(!G.deeds[i])G.items.push({kind:'deed',i,x:d[0],y:d[1],t:rand(0,3)});});}
+function checkBoss(){if(!G.p)return;const has=t=>G.enemies.some(e=>e.type===t&&!e.dead);
+  if(G.q===3&&G.map==='chambers'&&!has('master')){G.enemies.push(mkEnemy('master',330,420));toast('The Ghost of the Master in Chancery rises from the files');}
+  if(G.q===13&&G.map==='street'&&!has('committee')){G.enemies.push(mkEnemy('committee',1150,330));toast("The Landlord's Committee bars the street");}}
+
+function spawner(dt){if(G.spawnT>0){G.spawnT-=dt;return;}const cfg=spawnCfg();G.spawnT=cfg.rate||2.5;
+  if(!cfg.types.length)return;const normal=G.enemies.filter(e=>!e.boss).length;if(normal>=cfg.max)return;
+  const pts=MAPS[G.map].spawns.filter(s=>hyp(s[0]-G.p.x,s[1]-G.p.y)>320);if(!pts.length)return;
+  const s=pick(pts),t=pick(cfg.types),e=mkEnemy(t,s[0]+rand(-16,16),s[1]+rand(-16,16));G.enemies.push(e);
+  for(let i=0;i<8;i++)part(e.x,e.y,rand(-50,50),rand(-50,50),.4,'rgba(20,20,30,.8)',3);}
+
+function doors(){const M=MAPS[G.map],p=G.p;for(const d of M.doors){if(circleRect(p.x,p.y,p.r+2,d)){if(d.locked&&d.locked()){if(p.msgT<=0){text(p.x,p.y-36,'The iron gate is barred','#b5a688',12);p.msgT=1.5;}continue;}changeMap(d.to,d.sx,d.sy);return;}}}
+function changeMap(to,x,y){G.map=to;const p=G.p;p.x=x;p.y=y;p.swing=null;G.enemies=[];G.shots=[];G.items=[];G.parts=[];G.texts=[];G.rings=[];G.spawnT=2.5;G.fade=1;
+  placeItems();checkBoss();if(to==='tombs'&&G.q===14)setQ(15);save();hudT=0;}
+
+/* ---------------- Update ---------------- */
+function update(dt){G.time+=dt;G.min+=dt*1.5;G.bTxtT-=dt;
+  if(G.min>=1080){G.min=540;G.day++;toast('Six o’clock. The office closes; a new day begins.');}
+  updPlayer(dt);if(G.mode!=='play')return;updEnemies(dt);updShots(dt);updItems(dt);spawner(dt);doors();}
+function updFx(dt){for(const q of G.parts){q.t+=dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.92;q.vy*=.92;}G.parts=G.parts.filter(q=>q.t<q.life);
+  for(const t of G.texts){t.t+=dt;t.y-=22*dt;}G.texts=G.texts.filter(t=>t.t<t.life);
+  for(const r of G.rings)r.t+=dt;G.rings=G.rings.filter(r=>r.t<r.life);
+  G.shake=Math.max(0,G.shake-dt*30);G.fade=Math.max(0,G.fade-dt*2.4);}
+
+/* ---------------- HUD ---------------- */
+let hudT=0;const H={};['hName','hRank','hHp','hHpT','hInk','hInkT','hXp','hNuts','hSp','hClock','hDay','hMer','qName','qObj','qWhere','boss','bossName','bossBar','prompt'].forEach(i=>H[i]=document.getElementById(i));
+function fmtClock(m){const h=Math.floor(m/60),mm=Math.floor(m%60);const h12=h>12?h-12:h;return h12+':'+String(mm).padStart(2,'0')+(h<12?' a.m.':' p.m.');}
+function hud(dt){hudT-=dt;if(hudT>0)return;hudT=.08;const p=G.p,c=CL[G.cls];
+  H.hName.textContent=c.name;H.hRank.textContent='Rank '+p.lvl+' · '+rankName(p.lvl);
+  H.hHp.style.width=clamp(p.hp/p.maxhp*100,0,100)+'%';H.hHpT.textContent='Vigour '+Math.ceil(p.hp)+'/'+p.maxhp;
+  H.hInk.style.width=(p.ink/p.maxink*100)+'%';H.hInkT.textContent='Ink '+Math.floor(p.ink);
+  H.hXp.style.width=(p.xp/xpNeed(p.lvl)*100)+'%';H.hNuts.textContent=p.nuts;
+  H.hSp.textContent=p.cd.s>0?Math.ceil(p.cd.s)+'s':'Ready';
+  H.hClock.textContent=fmtClock(G.min);H.hDay.textContent='Day '+G.day+' · '+MAPS[G.map].name;
+  const pm=isPM();H.hMer.textContent=G.cls==='turkey'?(pm?'Afternoon: Turkey’s blood is up. Strikes +50%, ink flies wild.':'Morning: Turkey is steady and capable.'):G.cls==='nippers'?(pm?'Afternoon: Nippers is comparatively mild.':'Morning: indigestion. Throws 40% faster.'):G.cls==='lawyer'?'Prudence and Method: 15% less harm.':'Errand boy: twice the ginger-nuts.';
+  if(G.q<OBJ.length){const o=OBJ[G.q];H.qName.textContent='Quest '+QN[o[0]];H.qObj.textContent=o[1]();H.qWhere.textContent=o[2];}
+  else{H.qName.textContent='Free play';H.qObj.textContent='The tale is told. Wander as you like.';H.qWhere.textContent='';}
+  const bs=G.enemies.find(e=>e.boss&&!e.dead);H.boss.hidden=!bs;if(bs){H.bossName.textContent=bs.name;H.bossBar.style.width=(bs.hp/bs.maxhp*100)+'%';}
+  const n=G.mode==='play'?nearNPC():null;H.prompt.hidden=!n;if(n)H.prompt.innerHTML=(isTouch?'<kbd>Speak</kbd>':'<kbd>E</kbd>')+'Speak with '+n.name;}
+
+/* ---------------- Rendering ---------------- */
+let dpr=1,cw=1,ch=1,zoom=1,camX=0,camY=0;
+function resize(){const r=frame.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,2);cw=Math.max(1,r.width);ch=Math.max(1,r.height);cv.width=Math.round(cw*dpr);cv.height=Math.round(ch*dpr);zoom=clamp(Math.sqrt(cw*ch/(720*480)),.55,1.6);}
+addEventListener('resize',resize);
+function screenToWorld(sx,sy){return{x:sx/zoom+camX,y:sy/zoom+camY};}
+
+const BGS=2;
+function buildBG(id){const M=MAPS[id];const c=document.createElement('canvas');c.width=M.w*BGS;c.height=M.h*BGS;const g=c.getContext('2d');g.scale(BGS,BGS);DRAW[id](g,M,mulberry(id.length*977+13));M.bg=c;}
+function wallBlock(g,w,base,line){g.fillStyle=base;g.fillRect(w.x,w.y,w.w,w.h);g.fillStyle=line;g.fillRect(w.x,w.y,w.w,1.5);}
+function drawDesk(g,f,rnd){
+  g.fillStyle='rgba(0,0,0,.35)';g.fillRect(f.x+4,f.y+6,f.w,f.h);
+  rr(g,f.x,f.y,f.w,f.h,4);g.fillStyle='#4a2f1b';g.fill();rr(g,f.x+3,f.y+3,f.w-6,f.h-6,3);g.fillStyle='#62402a';g.fill();
+  g.strokeStyle='rgba(0,0,0,.18)';g.lineWidth=1;for(let y=f.y+9;y<f.y+f.h-3;y+=7){g.beginPath();g.moveTo(f.x+4,y);g.lineTo(f.x+f.w-4,y);g.stroke();}
+  if(f.v==='lawyer'){g.fillStyle='#2f4a37';g.fillRect(f.x+14,f.y+10,f.w-28,f.h-20);g.strokeStyle='#b8933f';g.strokeRect(f.x+16,f.y+12,f.w-32,f.h-24);}
+  const n=f.v==='lawyer'?3:f.v==='ginger'?1:f.v==='bartleby'?2:3;
+  for(let i=0;i<n;i++){const px=f.x+10+rnd()*(f.w-40),py=f.y+6+rnd()*Math.max(1,f.h-34);g.save();g.translate(px+11,py+12);g.rotate((rnd()-.5)*.35);g.fillStyle='#ece3cc';g.fillRect(-10,-12,20,24);
+    g.fillStyle='rgba(40,40,70,.4)';for(let l=0;l<5;l++)g.fillRect(-7,-8+l*4,14*(.55+rnd()*.45),1);
+    if(f.v==='turkey'){g.fillStyle='#10131b';circ(g,rnd()*10-5,rnd()*10-3,2.5+rnd()*2);g.fill();}g.restore();}
+  g.fillStyle='#14161c';circ(g,f.x+f.w-13,f.y+12,4);g.fill();g.fillStyle='#e9e2d0';g.fillRect(f.x+f.w-12,f.y+3,1.2,8);
+  if(f.v==='nippers'){g.fillStyle='#a8865a';[[f.x-4,f.y-3],[f.x+f.w-4,f.y-3],[f.x-4,f.y+f.h-4],[f.x+f.w-4,f.y+f.h-4]].forEach(([x,y])=>g.fillRect(x,y,8,7));}
+  if(f.v==='ginger'){for(let i=0;i<5;i++){g.fillStyle='#9a6a35';circ(g,f.x+20+i*9,f.y+f.h-14,3.4);g.fill();}g.fillStyle='#a8322a';circ(g,f.x+f.w-18,f.y+f.h-16,5);g.fill();}}
+const DRAW={
+  chambers(g,M,rnd){
+    g.fillStyle='#16100c';g.fillRect(0,0,M.w,M.h);
+    for(let y=24;y<736;y+=26){g.fillStyle=mix('#734f32','#5d3e27',rnd());g.fillRect(24,y,616,26);g.fillStyle='rgba(0,0,0,.3)';g.fillRect(24,y,616,1.2);
+      let x=24+rnd()*120;while(x<640){g.fillRect(x,y,1.2,26);x+=90+rnd()*140;}}
+    for(let i=0;i<14;i++){g.fillStyle='rgba(40,22,10,.35)';g.beginPath();g.ellipse(30+rnd()*600,30+rnd()*700,4,2,0,0,TAU);g.fill();}
+    g.fillStyle='rgba(255,250,235,.05)';[[150,24,90],[380,24,90]].forEach(([x,y,w])=>{g.beginPath();g.moveTo(x,y);g.lineTo(x+w,y);g.lineTo(x+w+40,y+180);g.lineTo(x-40,y+180);g.closePath();g.fill();});
+    g.fillStyle='#2e3b32';g.fillRect(654,24,422,712);
+    g.strokeStyle='#7d6633';g.lineWidth=3;g.strokeRect(674,72,382,640);g.lineWidth=1;g.strokeStyle='rgba(201,162,74,.18)';
+    for(let x=694;x<1050;x+=36)for(let y=92;y<700;y+=36){g.beginPath();g.moveTo(x,y-6);g.lineTo(x+6,y);g.lineTo(x,y+6);g.lineTo(x-6,y);g.closePath();g.stroke();}
+    for(const w of M.shell){if(w.x===640){g.fillStyle='rgba(196,206,200,.62)';g.fillRect(w.x,w.y,w.w,w.h);g.strokeStyle='#3a2b20';g.lineWidth=2;g.strokeRect(w.x+1,w.y+1,w.w-2,w.h-2);for(let y=w.y+40;y<w.y+w.h;y+=60){g.fillStyle='#3a2b20';g.fillRect(w.x,y,w.w,2);}}else wallBlock(g,w,'#3a2b20','#5b4431');}
+    g.fillStyle='rgba(196,206,200,.5)';g.save();g.translate(654,300);g.rotate(.5);g.fillRect(0,-4,46,8);g.restore();g.save();g.translate(654,420);g.rotate(-.5);g.fillRect(0,-4,46,8);g.restore();
+    g.fillStyle='#cfd5d1';g.fillRect(150,6,90,14);g.fillRect(380,6,90,14);g.fillStyle='#3a2b20';g.fillRect(194,6,2,14);g.fillRect(424,6,2,14);
+    g.fillStyle='#6b3326';g.fillRect(1078,92,18,108);g.fillStyle='rgba(30,12,8,.6)';for(let y=96;y<200;y+=6)g.fillRect(1078,y,18,1);g.strokeStyle='#5b4431';g.lineWidth=2;g.strokeRect(1077,91,20,110);
+    g.fillStyle='#1d1410';g.fillRect(500,736,100,24);g.fillStyle='#6d5a43';g.fillRect(500,736,100,3);
+    for(const f of M.furn){
+      if(f.t==='desk')drawDesk(g,f,rnd);
+      else if(f.t==='screen'){g.fillStyle='rgba(0,0,0,.35)';g.fillRect(f.x+3,f.y+5,f.w,f.h);g.fillStyle='#3d6a45';g.fillRect(f.x,f.y,f.w,f.h);g.fillStyle='#2b4d31';for(let x=f.x+28;x<f.x+f.w;x+=28)g.fillRect(x,f.y,2,f.h);g.fillStyle='#b8933f';g.fillRect(f.x,f.y,f.w,1.5);}
+      else if(f.t==='shelf'){g.fillStyle='#3d2717';g.fillRect(f.x,f.y,f.w,f.h);let x=f.x+3;while(x<f.x+f.w-6){const w=4+rnd()*6;g.fillStyle=pick(['#6b2a22','#2e4a3a','#3d3a6a','#7a5a2a','#4a2d1f']);g.fillRect(x,f.y+3,w,f.h-8);x+=w+1;}}
+      else if(f.t==='safe'){g.fillStyle='rgba(0,0,0,.35)';g.fillRect(f.x+4,f.y+5,f.w,f.h);g.fillStyle='#2c2f34';rr(g,f.x,f.y,f.w,f.h,3);g.fill();g.strokeStyle='#5d6168';g.strokeRect(f.x+5,f.y+5,f.w-10,f.h-10);g.fillStyle='#b8933f';circ(g,f.x+f.w/2,f.y+f.h/2,6);g.fill();}
+      else if(f.t==='stove'){g.fillStyle='#1c1d20';circ(g,f.x+20,f.y+20,19);g.fill();g.strokeStyle='#4a4d52';g.lineWidth=2;circ(g,f.x+20,f.y+20,12);g.stroke();g.fillStyle='#d2603a';circ(g,f.x+20,f.y+20,3);g.fill();}
+      else if(f.t==='press'){g.fillStyle='#2a2b2e';g.fillRect(f.x,f.y,f.w,f.h);g.fillStyle='#5d6168';g.fillRect(f.x+4,f.y+24,f.w-8,10);g.fillStyle='#8a8d92';g.fillRect(f.x+18,f.y-6,4,f.h+12);}}},
+  street(g,M,rnd){
+    g.fillStyle='#3d3935';g.fillRect(0,110,M.w,440);
+    for(let y=144;y<518;y+=13){let x=-rnd()*20;while(x<M.w){const w=15+rnd()*9;g.fillStyle=mix('#5d5852','#45413c',rnd());rr(g,x+1,y+1,w-2,11,3);g.fill();g.fillStyle='rgba(255,255,255,.05)';g.fillRect(x+3,y+2,w-6,2);x+=w;}}
+    g.fillStyle='#6c675f';g.fillRect(0,110,M.w,32);g.fillRect(0,518,M.w,32);g.fillStyle='rgba(0,0,0,.25)';for(let x=0;x<M.w;x+=46){g.fillRect(x,110,1.2,32);g.fillRect(x+20,518,1.2,32);}
+    g.fillStyle='#24211e';g.fillRect(0,141,M.w,3);g.fillRect(0,516,M.w,3);
+    const facade=(x0,x1,y0,y1,top)=>{let x=x0;while(x<x1){const w=Math.min(x1-x,120+rnd()*90);const col=pick(['#6b3f2c','#77736b','#7d3a2a','#5e4a3a','#8a8276']);g.fillStyle=col;g.fillRect(x,y0,w,y1-y0);
+      g.fillStyle='rgba(0,0,0,.25)';g.fillRect(x,y0,1.5,y1-y0);g.fillStyle='rgba(255,255,255,.08)';g.fillRect(x,top?y1-6:y0,w,6);
+      for(let wx=x+14;wx<x+w-18;wx+=30){for(const wy of top?[18,56]:[574,606]){g.fillStyle='#22262b';g.fillRect(wx,wy,14,22);g.fillStyle='rgba(220,190,120,.18)';g.fillRect(wx+2,wy+2,10,8);}}x+=w;}};
+    facade(30,180,0,110,true);facade(340,1580,0,110,true);facade(0,1600,550,640,false);
+    g.fillStyle='#7a756c';g.fillRect(180,0,160,110);g.fillStyle='#8a857b';g.fillRect(180,0,160,8);for(let wx=194;wx<330;wx+=30){if(wx>205&&wx<300)continue;g.fillStyle='#22262b';g.fillRect(wx,20,14,22);}
+    g.fillStyle='#120d0a';g.fillRect(222,40,76,70);g.fillStyle='#b8933f';g.fillRect(222,40,76,3);g.fillStyle='#8a857b';for(let i=0;i<3;i++)g.fillRect(212-i*4,96+i*5,96+i*8,4);
+    g.fillStyle='#55534f';g.fillRect(0,110,30,440);g.strokeStyle='#3a3936';g.lineWidth=2;for(let y=150;y<540;y+=80){g.beginPath();g.moveTo(6,y+50);g.lineTo(6,y+12);g.lineTo(15,y);g.lineTo(24,y+12);g.lineTo(24,y+50);g.stroke();}
+    g.fillStyle='#3c3a37';g.fillRect(1580,110,20,440);
+    for(const f of M.furn){
+      if(f.t==='stall'){g.fillStyle='#4a2f1b';g.fillRect(f.x,f.y+14,f.w,f.h-14);for(let i=0;i<10;i++){g.fillStyle=i%2?'#a33a2a':'#e9dfc8';g.fillRect(f.x+i*13,f.y,13,16);}
+        for(let i=0;i<9;i++){g.fillStyle='#9a6a35';circ(g,f.x+12+i*7,f.y+25,3.2);g.fill();}for(let i=0;i<5;i++){g.fillStyle='#a8322a';circ(g,f.x+84+i*9,f.y+25,4);g.fill();}}
+      else if(f.t==='cart'){g.fillStyle='rgba(0,0,0,.35)';g.fillRect(f.x+5,f.y+7,f.w,f.h);g.fillStyle='#6a4a2c';g.fillRect(f.x,f.y,f.w,f.h);g.strokeStyle='#3d2717';g.lineWidth=2;for(let x=f.x+16;x<f.x+f.w;x+=16){g.beginPath();g.moveTo(x,f.y);g.lineTo(x,f.y+f.h);g.stroke();}
+        g.fillStyle='#2a1d13';[f.x+18,f.x+f.w-18].forEach(x=>{g.fillRect(x-10,f.y-6,20,6);g.fillRect(x-10,f.y+f.h,20,6);});g.fillStyle='#d9cfb6';g.fillRect(f.x+20,f.y+12,40,30);g.fillRect(f.x+68,f.y+16,36,24);}
+      else if(f.t==='barrel'){g.fillStyle='rgba(0,0,0,.35)';circ(g,f.x+f.w/2+3,f.y+f.h/2+4,f.w/2);g.fill();g.fillStyle='#7a5530';circ(g,f.x+f.w/2,f.y+f.h/2,f.w/2);g.fill();g.strokeStyle='#2f2a25';g.lineWidth=2;circ(g,f.x+f.w/2,f.y+f.h/2,f.w/2-4);g.stroke();}
+      else if(f.t==='lamp'){g.fillStyle='#1b1c1e';circ(g,f.x+5,f.y+5,6);g.fill();}}},
+  tombs(g,M,rnd){
+    g.fillStyle='#55534d';g.fillRect(0,0,M.w,M.h);
+    for(let y=44;y<716;y+=48)for(let x=44;x<956;x+=64){g.fillStyle=mix('#5e5c56','#4b4a45',rnd());g.fillRect(x+1,y+1,62,46);}
+    g.fillStyle='#4a6538';rr(g,330,260,340,240,30);g.fill();g.strokeStyle='#6c8a4c';g.lineWidth=1.4;
+    for(let i=0;i<260;i++){const x=345+rnd()*310,y=275+rnd()*210;g.beginPath();g.moveTo(x,y);g.lineTo(x+rnd()*4-2,y-4-rnd()*4);g.stroke();}
+    for(const w of M.shell){g.fillStyle='#34322e';g.fillRect(w.x,w.y,w.w,w.h);g.fillStyle='rgba(0,0,0,.28)';for(let y=w.y;y<w.y+w.h;y+=18)g.fillRect(w.x,y,w.w,1.5);for(let y=w.y;y<w.y+w.h;y+=18)for(let x=w.x+((y/18)%2?0:30);x<w.x+w.w;x+=60)g.fillRect(x,y,1.5,18);}
+    g.fillStyle='rgba(0,0,0,.35)';g.fillRect(44,44,912,10);g.fillRect(44,44,10,672);
+    g.fillStyle='#2a2826';g.fillRect(0,334,44,120);g.fillStyle='#1b1a19';for(let y=338;y<454;y+=12)g.fillRect(0,y,44,3);
+    for(const f of M.furn){g.fillStyle='rgba(0,0,0,.4)';g.fillRect(f.x+5,f.y+7,f.w,f.h);g.fillStyle='#6a665d';g.fillRect(f.x,f.y,f.w,f.h);g.fillStyle='#857f72';g.fillRect(f.x-4,f.y-4,f.w+8,10);g.strokeStyle='#4a4740';g.lineWidth=1.5;for(let i=1;i<4;i++){g.beginPath();g.moveTo(f.x+i*11,f.y+8);g.lineTo(f.x+i*11,f.y+f.h);g.stroke();}}}
+};
+
+/* -------- people & foes -------- */
+function drawPerson(g,x,y,o){const s=o.scale||1;g.save();g.translate(x,y);g.scale(s,s);if(o.alpha!=null)g.globalAlpha=o.alpha;
+  g.fillStyle='rgba(0,0,0,.32)';g.beginPath();g.ellipse(0,11,13,5,0,0,TAU);g.fill();
+  const sw=o.walk?Math.sin(o.walk)*3:0;g.fillStyle='#17120e';g.fillRect(-6,4,5,9+sw);g.fillRect(1,4,5,9-sw);
+  rr(g,-10,-12,20,20,6);g.fillStyle=o.flash?'#fff':o.coat;g.fill();
+  g.fillStyle='rgba(255,255,255,.07)';g.fillRect(-1,-12,1.5,20);
+  if(o.apron){g.fillStyle=o.apron;rr(g,-6,-5,12,13,3);g.fill();}
+  g.fillStyle='#ece5d4';g.beginPath();g.moveTo(-3.5,-12);g.lineTo(3.5,-12);g.lineTo(0,-6);g.closePath();g.fill();
+  const f=o.facing||0,hx=Math.cos(f)*12,hy=Math.sin(f)*7-2;g.fillStyle=o.face;circ(g,hx,hy,3.2);g.fill();
+  g.fillStyle=o.flash?'#fff':o.face;circ(g,0,-18,7.5);g.fill();
+  if(o.hair){g.fillStyle=o.hair;g.beginPath();g.arc(0,-19,7.9,PI*1.02,PI*1.98);g.closePath();g.fill();}
+  if(Math.sin(f)>-.5){const ex=Math.cos(f)*2.5;g.fillStyle='#1a1410';circ(g,ex-2.6,-18,1.1);g.fill();circ(g,ex+2.6,-18,1.1);g.fill();}
+  if(o.hat==='top'){g.fillStyle='#121212';g.fillRect(-10,-25,20,3);g.fillRect(-6.5,-37,13,12);g.fillStyle='#3a2a1e';g.fillRect(-6.5,-28,13,2);}
+  else if(o.hat==='cap'){g.fillStyle=o.hatc||'#3a3a3a';g.beginPath();g.arc(0,-21,7.6,PI,TAU);g.fill();g.fillRect(Math.cos(f)>0?2:-11,-22,9,2.5);}
+  else if(o.hat==='bonnet'){g.fillStyle=o.hatc||'#d8c9a8';g.beginPath();g.arc(0,-19,10,PI*.9,PI*2.1);g.fill();g.fillStyle=o.face;circ(g,0,-17,6);g.fill();g.fillStyle='#1a1410';circ(g,-2.4,-17,1);g.fill();circ(g,2.4,-17,1);g.fill();}
+  g.restore();}
+function faceOf(cls){if(cls==='turkey'){const t=clamp((G.min-720)/60,0,1);return mix('#e3b996','#d0452e',t);}return CL[cls].face;}
+function drawBartleby(g,b){if(G.bartLying||(G.q>=18&&G.map==='tombs')){g.save();g.translate(b.x,b.y);g.rotate(-PI/2);drawPerson(g,0,0,{coat:'#2b2b2e',face:'#d9d4cb',hair:'#3a332c',facing:PI/2});g.restore();return;}
+  drawPerson(g,b.x,b.y,{coat:'#2b2b2e',face:'#ddd8cf',hair:'#3a332c',facing:0});}
+function drawNPC(g,n){const t=G.time;
+  switch(n.id){
+    case 'lawyer':drawPerson(g,n.x,n.y,{coat:'#25272c',face:'#e6c9a6',hair:'#cfc8bb',hat:'top',facing:PI*.15});break;
+    case 'docket':g.fillStyle='#5a2a1f';g.fillRect(808,468,28,20);g.fillStyle='#e9dfc8';g.fillRect(810,470,24,1.5);g.fillStyle='#b8933f';g.fillRect(820,468,2,20);break;
+    case 'turkey':drawPerson(g,n.x,n.y,{coat:'#3a2e29',face:faceOf('turkey'),hair:'#ddd8cf',facing:-PI/2+Math.sin(t*.8)*.4,scale:1.08});break;
+    case 'nippers':drawPerson(g,n.x,n.y,{coat:'#2e3a33',face:'#d6c49c',hair:'#2a1d14',facing:-PI/2+Math.sin(t*3)*.25});break;
+    case 'ginger':drawPerson(g,n.x,n.y,{coat:'#6a4a2a',face:'#f0cfa8',hair:'#8a4a24',hat:'cap',hatc:'#7a2f22',scale:.84,facing:PI/2,walk:t*4});break;
+    case 'bartleby':drawBartleby(g,n);break;
+    case 'cake':drawPerson(g,n.x,n.y,{coat:'#5c2e2a',face:'#e8c7a2',hat:'bonnet',hatc:'#d8c9a8',apron:'#e9e1cf',facing:PI/2});break;
+    case 'grub':drawPerson(g,n.x,n.y,{coat:'#4a3a2a',face:'#e2bb92',hair:'#5a4632',hat:'cap',hatc:'#2a2a2a',apron:'#e9e1cf',facing:PI/2});break;}}
+function drawEnemy(g,e){const fl=e.flash>0;g.save();if(e.stun>0)g.globalAlpha=.75;
+  switch(e.type){
+    case 'blot':{g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(e.x,e.y+e.r*.8,e.r,e.r*.35,0,0,TAU);g.fill();
+      g.beginPath();for(let i=0;i<=10;i++){const a=i/10*TAU,rr2=e.r*(1+.17*Math.sin(e.t*4+i*1.7));const px=e.x+Math.cos(a)*rr2,py=e.y+Math.sin(a)*rr2*.9;i?g.lineTo(px,py):g.moveTo(px,py);}g.closePath();g.fillStyle=fl?'#fff':'#11151f';g.fill();
+      g.fillStyle='rgba(120,150,200,.28)';g.beginPath();g.ellipse(e.x-e.r*.35,e.y-e.r*.4,e.r*.35,e.r*.18,-.5,0,TAU);g.fill();
+      const la=Math.atan2(G.p.y-e.y,G.p.x-e.x);g.fillStyle='#d6dde8';circ(g,e.x-4+Math.cos(la)*2,e.y-2+Math.sin(la)*2,2.2);g.fill();circ(g,e.x+4+Math.cos(la)*2,e.y-2+Math.sin(la)*2,2.2);g.fill();break;}
+    case 'writ':{g.translate(e.x,e.y);g.rotate(Math.sin(e.t*3+e.phase)*.6);g.fillStyle='rgba(0,0,0,.25)';g.fillRect(-8,8,18,6);g.fillStyle=fl?'#fff':'#efe5cb';g.fillRect(-9,-12,18,24);g.strokeStyle='#9c8c6a';g.lineWidth=1;g.strokeRect(-9,-12,18,24);
+      g.fillStyle='rgba(30,30,50,.45)';for(let l=0;l<4;l++)g.fillRect(-6,-8+l*4,12,1);g.fillStyle='#9b2b20';circ(g,3,7,3.4);g.fill();break;}
+    case 'clerk':drawPerson(g,e.x,e.y,{coat:'#4b3b2d',face:'#d9b996',hair:'#3a2a1c',hat:'top',facing:Math.atan2(G.p.y-e.y,G.p.x-e.x),walk:e.t*8,flash:fl});
+      g.strokeStyle='#f2efe6';g.lineWidth=1.6;const qa=Math.atan2(G.p.y-e.y,G.p.x-e.x);g.beginPath();g.moveTo(e.x+Math.cos(qa)*12,e.y+Math.sin(qa)*7-2);g.lineTo(e.x+Math.cos(qa)*12+Math.cos(qa-1)*12,e.y+Math.sin(qa)*7-2+Math.sin(qa-1)*12);g.stroke();break;
+    case 'murmur':{const gr=g.createRadialGradient(e.x,e.y,2,e.x,e.y,e.r*1.6);gr.addColorStop(0,fl?'rgba(255,255,255,.9)':'rgba(150,146,140,.7)');gr.addColorStop(1,'rgba(150,146,140,0)');g.fillStyle=gr;circ(g,e.x,e.y,e.r*1.6);g.fill();
+      for(let i=0;i<3;i++){const a=e.t*2+i*TAU/3,mx=e.x+Math.cos(a)*e.r*.7,my=e.y+Math.sin(a)*e.r*.55;g.fillStyle='#2a2522';g.beginPath();g.ellipse(mx,my,3.5,1.6+Math.abs(Math.sin(e.t*9+i))*1.6,a,0,TAU);g.fill();}
+      g.fillStyle='rgba(234,223,198,.8)';g.font='italic 12px Spectral, Georgia, serif';g.textAlign='center';g.fillText('…',e.x,e.y-e.r-2);break;}
+    case 'letter':{g.translate(e.x,e.y);g.rotate(Math.sin(e.t*5+e.phase)*.5);g.fillStyle='rgba(0,0,0,.25)';g.fillRect(-10,10,22,5);g.fillStyle=fl?'#fff':'#d8cdb3';g.fillRect(-11,-8,22,16);g.strokeStyle='#1d1a17';g.lineWidth=1.8;g.strokeRect(-11,-8,22,16);
+      g.lineWidth=1;g.beginPath();g.moveTo(-11,-8);g.lineTo(0,1);g.lineTo(11,-8);g.stroke();break;}
+    case 'master':{const bob=Math.sin(e.t*2)*4;g.globalAlpha=e.stun>0?.6:.88;const gr=g.createRadialGradient(e.x,e.y+bob,4,e.x,e.y+bob,e.r*2.2);gr.addColorStop(0,'rgba(150,170,220,.35)');gr.addColorStop(1,'rgba(150,170,220,0)');g.fillStyle=gr;circ(g,e.x,e.y+bob,e.r*2.2);g.fill();
+      g.fillStyle=fl?'#fff':'#1f2a44';g.beginPath();g.moveTo(e.x-e.r,e.y+e.r+bob);for(let i=0;i<=6;i++)g.lineTo(e.x-e.r+i*e.r/3,e.y+e.r+bob+(i%2?8:0));g.lineTo(e.x+e.r*.7,e.y-e.r*.4+bob);g.lineTo(e.x-e.r*.7,e.y-e.r*.4+bob);g.closePath();g.fill();
+      g.fillStyle='#f2efe6';g.fillRect(e.x-5,e.y-e.r*.35+bob,4,16);g.fillRect(e.x+1,e.y-e.r*.35+bob,4,16);
+      g.fillStyle='#d4d9e6';circ(g,e.x,e.y-e.r*.7+bob,13);g.fill();g.fillStyle='#ecebe6';for(let i=-1;i<=1;i+=2){circ(g,e.x+i*12,e.y-e.r*.6+bob,7);g.fill();circ(g,e.x+i*13,e.y-e.r*.35+bob,6);g.fill();}
+      g.fillStyle='#2a3350';circ(g,e.x-4,e.y-e.r*.72+bob,1.8);g.fill();circ(g,e.x+4,e.y-e.r*.72+bob,1.8);g.fill();break;}
+    case 'committee':{const off=[[-20,-6],[20,-6],[0,12]];off.forEach(([ox,oy],i)=>drawPerson(g,e.x+ox,e.y+oy,{coat:['#2b2420','#3b3027','#25272c'][i],face:'#e2c2a0',hair:'#999',hat:'top',facing:Math.atan2(G.p.y-e.y,G.p.x-e.x),walk:e.t*6+i,flash:fl,scale:1.15}));
+      g.save();g.translate(e.x,e.y-30);g.rotate(Math.sin(e.t*2)*.1);g.fillStyle='#efe5cb';g.fillRect(-20,-14,40,26);g.strokeStyle='#9b2b20';g.lineWidth=2;g.strokeRect(-20,-14,40,26);g.fillStyle='#9b2b20';g.font='600 7px Spectral, Georgia, serif';g.textAlign='center';g.fillText('NOTICE',0,-3);g.fillText('TO QUIT',0,6);g.restore();break;}}
+  g.restore();
+  if(e.stun>0){g.fillStyle='#c9a24a';g.font='12px Spectral, Georgia, serif';g.textAlign='center';g.fillText('✶ ✶',e.x,e.y-e.r-14);}
+  if(!e.boss&&e.hp<e.maxhp){g.fillStyle='rgba(0,0,0,.6)';g.fillRect(e.x-14,e.y-e.r-10,28,3.5);g.fillStyle='#b2412f';g.fillRect(e.x-14,e.y-e.r-10,28*Math.max(0,e.hp/e.maxhp),3.5);}}
+function drawPlayer(g){const p=G.p,c=CL[G.cls];const blink=p.iframe>0&&Math.floor(G.time*20)%2;
+  if(p.furyT>0){const gr=g.createRadialGradient(p.x,p.y-6,4,p.x,p.y-6,34);gr.addColorStop(0,'rgba(220,80,50,.45)');gr.addColorStop(1,'rgba(220,80,50,0)');g.fillStyle=gr;circ(g,p.x,p.y-6,34);g.fill();}
+  const s=c.scale,wa=p.swing?p.swing.a-p.swing.arc/2+p.swing.arc*(1-p.swing.t/.16):p.face;
+  const hx=p.x+Math.cos(p.face)*12*s,hy=p.y+(Math.sin(p.face)*7-2)*s;
+  const drawWeapon=()=>{g.save();g.translate(hx,hy);g.rotate(wa);
+    if(G.cls==='lawyer'){g.strokeStyle='#5a3b1f';g.lineWidth=3;g.beginPath();g.moveTo(0,0);g.lineTo(24,0);g.stroke();g.fillStyle='#c9a24a';circ(g,0,0,3);g.fill();}
+    else if(G.cls==='turkey'){g.fillStyle='#b89060';g.fillRect(0,-2.5,28,5);g.fillStyle='#3a2a1a';for(let i=4;i<28;i+=4)g.fillRect(i,-2.5,.8,2.5);}
+    else if(G.cls==='nippers'){g.strokeStyle='#e9e2d0';g.lineWidth=1.6;g.beginPath();g.moveTo(0,0);g.lineTo(14,0);g.stroke();g.fillStyle='#9aa0a8';g.fillRect(14,-1,4,2);}
+    else{g.fillStyle='#a8322a';circ(g,6,0,5);g.fill();g.fillStyle='#4a6538';g.fillRect(5,-7,2,3);}
+    g.restore();};
+  const behind=Math.sin(wa)<0;if(behind)drawWeapon();
+  drawPerson(g,p.x,p.y,{coat:c.coat,face:faceOf(G.cls),hair:c.hair,hat:c.hat,hatc:c.hatc,scale:s,facing:p.face,walk:p.walk,alpha:blink?.45:1});
+  if(!behind)drawWeapon();
+  if(p.swing){const sw=p.swing;g.strokeStyle=`rgba(234,223,198,${sw.t/.16*.55})`;g.lineWidth=3;g.beginPath();g.arc(p.x,p.y-4,sw.range*.9,sw.a-sw.arc/2,sw.a+sw.arc/2);g.stroke();}}
+function drawShot(g,s){g.save();g.translate(s.x,s.y);g.rotate(Math.atan2(s.vy,s.vx));
+  switch(s.kind){
+    case 'writ':g.rotate(G.time*10);g.fillStyle='#efe5cb';g.fillRect(-7,-9,14,18);g.fillStyle='#9b2b20';circ(g,2,5,2.6);g.fill();break;
+    case 'blot':g.fillStyle='#10131b';g.beginPath();g.ellipse(0,0,s.r+2,s.r-1,0,0,TAU);g.fill();g.fillStyle='rgba(16,19,27,.5)';circ(g,-9,0,3);g.fill();break;
+    case 'nib':g.strokeStyle='#cfd5dc';g.lineWidth=2;g.beginPath();g.moveTo(-8,0);g.lineTo(6,0);g.stroke();g.fillStyle='#1a1d22';g.beginPath();g.moveTo(6,-2);g.lineTo(11,0);g.lineTo(6,2);g.fill();break;
+    case 'cake':g.fillStyle='#9a6a35';circ(g,0,0,s.r+1);g.fill();g.strokeStyle='#6a4520';g.lineWidth=1;g.beginPath();g.moveTo(-3,-1);g.lineTo(3,1);g.stroke();break;
+    case 'quill':g.strokeStyle='#f2efe6';g.lineWidth=2;g.beginPath();g.moveTo(-9,0);g.lineTo(7,0);g.stroke();g.fillStyle='#f2efe6';g.beginPath();g.ellipse(-4,-2,6,2,0,0,TAU);g.fill();break;
+    case 'ghost':g.globalAlpha=.85;g.fillStyle='rgba(170,190,235,.35)';circ(g,0,0,11);g.fill();g.fillStyle='#dfe6f5';g.fillRect(-6,-8,12,16);g.fillStyle='#5a6a96';g.fillRect(-4,-4,8,1);g.fillRect(-4,0,8,1);break;
+    case 'notice':g.rotate(G.time*6);g.fillStyle='#efe5cb';g.fillRect(-7,-9,14,18);g.strokeStyle='#9b2b20';g.lineWidth=1.6;g.strokeRect(-7,-9,14,18);break;}
+  g.restore();}
+function drawItem(g,it){const bob=Math.sin(it.t*3)*3;
+  if(it.kind==='deed'){const gr=g.createRadialGradient(it.x,it.y,2,it.x,it.y,26);gr.addColorStop(0,'rgba(234,210,140,.45)');gr.addColorStop(1,'rgba(234,210,140,0)');g.fillStyle=gr;circ(g,it.x,it.y,26);g.fill();
+    g.save();g.translate(it.x,it.y+bob);g.rotate(-.15);g.fillStyle='#f2e9d2';g.fillRect(-10,-13,20,26);g.fillStyle='#2a2a40';g.font='600 6px Spectral, Georgia, serif';g.textAlign='center';g.fillText('DEED',0,-5);g.fillRect(-6,0,12,.8);g.fillRect(-6,3,12,.8);g.fillStyle='#10131b';circ(g,4,7,3);g.fill();g.restore();}
+  else{g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(it.x,it.y+7,6,2.5,0,0,TAU);g.fill();g.fillStyle='#9a6a35';circ(g,it.x,it.y+bob*.5,5.5);g.fill();g.strokeStyle='#6a4520';g.beginPath();g.moveTo(it.x-3,it.y-1+bob*.5);g.lineTo(it.x+3,it.y+1+bob*.5);g.stroke();}}
+
+function targetPoint(){if(G.q>=OBJ.length||!G.p)return null;const tk=OBJ[G.q][3];if(!tk)return null;
+  let mapT,pt;
+  if(tk==='deed'){mapT='chambers';const i=G.deeds.findIndex(d=>!d);if(i<0)return null;pt={x:DEEDS[i][0],y:DEEDS[i][1]};let bd=1e9;DEEDS.forEach((d,j)=>{if(G.deeds[j])return;const dd=hyp(d[0]-G.p.x,d[1]-G.p.y);if(dd<bd){bd=dd;pt={x:d[0],y:d[1]};}});}
+  else if(tk==='boss'){mapT=G.q===3?'chambers':'street';const b=G.enemies.find(e=>e.boss);pt=b?{x:b.x,y:b.y}:null;}
+  else if(tk==='gate'){mapT='street';pt={x:1570,y:330};}
+  else{const n=NPCS.find(x=>x.id===(tk==='lawyer'&&G.cls==='lawyer'?'docket':tk));mapT=n.map;pt={x:n.x,y:n.y};}
+  if(mapT!==G.map){if(G.map==='chambers')return{x:550,y:745,door:1};if(G.map==='tombs')return{x:15,y:394,door:1};return mapT==='chambers'?{x:260,y:100,door:1}:{x:1570,y:330,door:1};}
+  return pt;}
+
+let titleCam={x:560,y:330};
+function render(){
+  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#0f0b08';ctx.fillRect(0,0,cv.width,cv.height);
+  const M=MAPS[G.map];const vw=cw/zoom,vh=ch/zoom;
+  const fx=G.p?G.p.x:titleCam.x+Math.sin(performance.now()/6000)*120,fy=G.p?G.p.y:titleCam.y;
+  camX=M.w<vw?(M.w-vw)/2:clamp(fx-vw/2,0,M.w-vw);camY=M.h<vh?(M.h-vh)/2:clamp(fy-vh/2,0,M.h-vh);
+  const sh=G.shake>0?rand(-G.shake,G.shake):0,sh2=G.shake>0?rand(-G.shake,G.shake):0;
+  const k=dpr*zoom;ctx.setTransform(k,0,0,k,(-camX+sh)*k,(-camY+sh2)*k);
+  if(M.bg)ctx.drawImage(M.bg,0,0,M.w,M.h);else{ctx.fillStyle='#3a2b20';ctx.fillRect(0,0,M.w,M.h);}
+  const t=G.time||performance.now()/1000;
+  if(G.map==='street'){for(const f of M.furn){if(f.t!=='lamp')continue;const gr=ctx.createRadialGradient(f.x+5,f.y+5,2,f.x+5,f.y+5,90);gr.addColorStop(0,'rgba(255,200,110,.22)');gr.addColorStop(1,'rgba(255,200,110,0)');ctx.fillStyle=gr;circ(ctx,f.x+5,f.y+5,90);ctx.fill();ctx.fillStyle='#ffd58a';circ(ctx,f.x+5,f.y+5,2.5);ctx.fill();}
+    const open=G.q>=14;ctx.fillStyle=open?'rgba(255,220,150,.18)':'#1b1a19';ctx.fillRect(1580,270,20,120);if(!open){ctx.fillStyle='#4a4846';for(let y=274;y<390;y+=10)ctx.fillRect(1580,y,20,3);}}
+  ctx.font='600 12px Spectral, Georgia, serif';ctx.textAlign='center';
+  for(const [x,y,s] of M.labels){if(s==='The Tombs →'&&G.q<14&&G.p){ctx.fillStyle='rgba(181,166,136,.6)';ctx.fillText('The Tombs (barred)',x,y);continue;}ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillText(s,x+1,y+1);ctx.fillStyle='#e7dcc2';ctx.fillText(s,x,y);}
+  for(const it of G.items)drawItem(ctx,it);
+  const ents=[];for(const n of NPCS){if(n.map===G.map&&(!n.cond||n.cond()))ents.push({y:n.y,f:()=>drawNPC(ctx,n)});}
+  for(const e of G.enemies)ents.push({y:e.y,f:()=>drawEnemy(ctx,e)});
+  if(G.p)ents.push({y:G.p.y,f:()=>drawPlayer(ctx)});
+  ents.sort((a,b)=>a.y-b.y);for(const e of ents)e.f();
+  for(const s of G.shots)drawShot(ctx,s);
+  for(const q of G.parts){ctx.globalAlpha=1-q.t/q.life;ctx.fillStyle=q.c;circ(ctx,q.x,q.y,q.s);ctx.fill();}ctx.globalAlpha=1;
+  for(const r of G.rings){const u=r.t/r.life;ctx.strokeStyle=`rgba(${r.c},${1-u})`;ctx.lineWidth=3;circ(ctx,r.x,r.y,lerp(r.r0,r.r1,u));ctx.stroke();}
+  if(G.p){const near=G.mode==='play'?nearNPC():null;for(const n of activeNPCs()){const d=hyp(n.x-G.p.x,n.y-G.p.y);if(d<160&&n.id!=='docket'){ctx.font='600 12px Spectral, Georgia, serif';ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillText(n.name,n.x+1,n.y-(n.id==='lawyer'||n.id==='turkey'?44:34)+1);ctx.fillStyle=n===near?'#c9a24a':'#e7dcc2';ctx.fillText(n.name,n.x,n.y-(n.id==='lawyer'||n.id==='turkey'?44:34));}}}
+  for(const tx of G.texts){ctx.globalAlpha=1-tx.t/tx.life;ctx.font=(tx.it?'italic ':'600 ')+tx.size+'px Spectral, Georgia, serif';ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillText(tx.s,tx.x+1,tx.y+1);ctx.fillStyle=tx.c;ctx.fillText(tx.s,tx.x,tx.y);}ctx.globalAlpha=1;
+  const tp=G.mode!=='title'?targetPoint():null;
+  if(tp&&!tp.door&&tp.x>camX&&tp.x<camX+vw&&tp.y>camY&&tp.y<camY+vh){const by=tp.y-56+Math.sin(t*4)*4;ctx.fillStyle='#c9a24a';ctx.beginPath();ctx.moveTo(tp.x,by+12);ctx.lineTo(tp.x-7,by);ctx.lineTo(tp.x+7,by);ctx.closePath();ctx.fill();}
+  if(G.p&&!isTouch&&mouse.active&&performance.now()-mouse.t<4000&&G.mode==='play'){const w=screenToWorld(mouse.x,mouse.y);ctx.strokeStyle='rgba(201,162,74,.7)';ctx.lineWidth=1.5;circ(ctx,w.x,w.y,7);ctx.stroke();ctx.beginPath();ctx.moveTo(w.x-11,w.y);ctx.lineTo(w.x-4,w.y);ctx.moveTo(w.x+4,w.y);ctx.lineTo(w.x+11,w.y);ctx.stroke();}
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const px=G.p?(G.p.x-camX)*zoom:cw/2,py=G.p?(G.p.y-camY)*zoom:ch/2;
+  const vg=ctx.createRadialGradient(px,py,Math.min(cw,ch)*.25,px,py,Math.max(cw,ch)*.75);vg.addColorStop(0,'rgba(12,8,5,0)');vg.addColorStop(1,G.map==='tombs'?'rgba(8,8,10,.75)':'rgba(12,8,5,.6)');ctx.fillStyle=vg;ctx.fillRect(0,0,cw,ch);
+  if(G.p&&isPM()&&G.map!=='tombs'){ctx.fillStyle='rgba(255,150,60,.06)';ctx.fillRect(0,0,cw,ch);}
+  if(tp&&G.mode==='play'){const sx=(tp.x-camX)*zoom,sy=(tp.y-camY)*zoom,m=40;if(tp.door||sx<m||sy<m||sx>cw-m||sy>ch-m){const a=Math.atan2(sy-py,sx-px);let ex=clamp(sx,m,cw-m),ey=clamp(sy,m+(cw<640?90:70),ch-m-(isTouch?150:0));if(tp.door&&sx>m&&sy>m&&sx<cw-m&&sy<ch-m){ex=sx;ey=sy-30;}
+    ctx.save();ctx.translate(ex,ey);ctx.rotate(a);ctx.fillStyle='rgba(201,162,74,.9)';ctx.beginPath();ctx.moveTo(14,0);ctx.lineTo(-6,-9);ctx.lineTo(-2,0);ctx.lineTo(-6,9);ctx.closePath();ctx.fill();ctx.restore();}}
+  if(G.fade>0){ctx.fillStyle=`rgba(0,0,0,${G.fade})`;ctx.fillRect(0,0,cw,ch);}}
+
+/* ---------------- Loop ---------------- */
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(G.mode==='play'&&!document.hidden)update(dt);
+  if(G.mode==='play')updFx(dt);else G.fade=Math.max(0,G.fade-dt*2.4);
+  if(G.p&&G.mode!=='title')hud(dt);
+  render();requestAnimationFrame(loop);}
+
+/* ---------------- Save / start ---------------- */
+function saveData(){if(!G.p)return null;const p=G.p;return{cls:G.cls,q:G.q,lvl:p.lvl,xp:p.xp,nuts:p.nuts,maxhp:p.maxhp,day:G.day,deeds:G.deeds,kills:G.kills,askd:G.askd,map:G.map,gift:G.gingerGift,min:G.min};}
+function save(){const d=saveData();if(!d)return;try{localStorage.setItem('bartleby-save',JSON.stringify(d));}catch(e){}}
+function loadSave(){try{return JSON.parse(localStorage.getItem('bartleby-save')||'null');}catch(e){return null;}}
+function startGame(cls,data){G.cls=cls;G.p=newPlayer(cls);G.q=0;G.qk=0;G.deeds=[false,false,false,false];G.day=1;G.min=540;G.kills=0;G.askd={};G.gingerGift=false;G.bartLying=false;G.time=0;
+  if(data){G.q=data.q|0;G.p.lvl=data.lvl||1;G.p.xp=data.xp||0;G.p.nuts=data.nuts??2;G.p.maxhp=data.maxhp||G.p.maxhp;G.p.hp=G.p.maxhp;G.day=data.day||1;G.deeds=data.deeds||G.deeds;G.kills=data.kills||0;G.askd=data.askd||{};G.gingerGift=!!data.gift;G.min=data.min||540;}
+  $('#title').hidden=true;$('#ending').hidden=true;$('#hud').hidden=false;setTouch(isTouch);G.mode='play';
+  const m=data&&MAPS[data.map]?data.map:'chambers';changeMap(m,START[m][0],START[m][1]);
+  if(!data)say([{s:'',t:'<em>No. — Wall-street. The chambers look out, on one side, upon a white wall; on the other, upon a lofty brick wall, black by age.</em>'},
+    {s:LW(),t:'Bartleby has been with us three days. A small affair: four copies of a deed to be examined against the original. Call him out from behind his screen.'},
+    {s:'',t:'<em>Bartleby is the pale figure behind the green screen, by the window. Walk to him and '+(isTouch?'tap Speak':'press E')+'. The brass chevron points the way.</em>'}]);
+  else toast('Quest '+(G.q<OBJ.length?QN[OBJ[G.q][0]]:'— free play'));}
+function showEnding(){const p=G.p;$('#ending').hidden=false;G.mode='end';$('#hud').hidden=true;
+  $('#ledger').innerHTML=[['Clerk',CL[G.cls].name],['Rank',p.lvl],['Days at the office',G.day],['Foes put down',G.kills]].map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('');}
+$('#wander').onclick=()=>{$('#ending').hidden=true;$('#hud').hidden=false;G.mode='play';G.enemies=[];changeMap('street',START.street[0],START.street[1]);};
+$('#again').onclick=()=>{try{localStorage.removeItem('bartleby-save');}catch(e){}$('#ending').hidden=true;$('#hud').hidden=true;G.p=null;G.mode='title';G.map='chambers';G.enemies=[];G.items=[];G.q=0;G.bartLying=false;$('#title').hidden=false;$('#cont').hidden=true;};
+
+/* class cards */
+let chosen='lawyer';
+const wrap=$('#classes');
+for(const id of ['lawyer','turkey','nippers','ginger']){const c=CL[id];const b=document.createElement('button');b.className='cls';b.setAttribute('aria-pressed',id===chosen);b.dataset.id=id;
+  b.innerHTML=`<div class="top"><canvas width="116" height="116"></canvas><div><div class="nm">${c.name}</div><div class="rl">${c.role}</div><div class="st">Vigour ${c.hp} · Pace ${c.speed}</div></div></div>
+  <dl class="moves"><dt>Strike</dt><dd>${c.melee.name}</dd><dt>Throw</dt><dd>${c.ranged.name}</dd><dt>Special</dt><dd>${c.special.name} — ${c.special.desc}</dd></dl>
+  <div class="passive">${c.passive}</div><div class="quote">${c.quote}</div>`;
+  b.onclick=()=>{chosen=id;wrap.querySelectorAll('.cls').forEach(x=>x.setAttribute('aria-pressed',x.dataset.id===id));};
+  b.ondblclick=()=>startGame(id);
+  wrap.appendChild(b);
+  const g=b.querySelector('canvas').getContext('2d');g.scale(2,2);g.fillStyle='#2e3b32';g.fillRect(0,0,58,58);
+  drawPerson(g,29,40,{coat:c.coat,face:id==='turkey'?'#e3b996':c.face,hair:c.hair,hat:c.hat,hatc:c.hatc,scale:(c.scale||1)*1.15,facing:PI/2});}
+$('#begin').onclick=()=>startGame(chosen);
+const sv=loadSave();if(sv&&CL[sv.cls]&&sv.q<19){const cb=$('#cont');cb.hidden=false;cb.textContent='Continue as '+CL[sv.cls].name;cb.onclick=()=>startGame(sv.cls,sv);}
+
+/* boot */
+resize();
+const fontsReady=document.fonts&&document.fonts.ready?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))]):Promise.resolve();
+for(const k in MAPS)buildBG(k);
+fontsReady.then(()=>{for(const k in MAPS)buildBG(k);});
+try{window.claude?.hot?.snapshot?.(()=>saveData());}catch(e){}
+const boot=d=>{if(d&&d.cls&&CL[d.cls]&&d.q!=null&&d.q<19)startGame(d.cls,d);};
+try{if(window.claude?.hot?.ready)window.claude.hot.ready(boot);else boot(window.claude?.hot?.data??{});}catch(e){}
+if(isTouch)$('#keys').hidden=true;
+requestAnimationFrame(loop);
+})();
+</script>
+
+</body></html>

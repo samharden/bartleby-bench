@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bartleby, the Scrivener: Chronicles of Wall-Street</title>
+<style>
+  :root {
+    --parchment: #f2e6cf;
+    --parchment-dark: #dcc7a1;
+    --ink: #1b1612;
+    --mahogany: #2c1810;
+    --mahogany-light: #4a2a1c;
+    --brass: #c89d54;
+    --brass-bright: #e6bf74;
+    --crimson: #8b1e1e;
+    --scrivener-green: #2e5a44;
+    --dread-purple: #5c3c82;
+  }
+
+  * {
+    box-sizing: border-box;
+    user-select: none;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #120b07;
+    color: var(--parchment);
+    font-family: "Georgia", "Garamond", "Times New Roman", serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Top Header Bar */
+  header {
+    background: linear-gradient(180deg, #2c1810 0%, #1b0f0a 100%);
+    border-bottom: 3px double var(--brass);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+    z-index: 10;
+  }
+
+  .title-block h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    color: var(--brass-bright);
+    letter-spacing: 1px;
+    text-shadow: 1px 2px 3px #000;
+  }
+
+  .title-block span {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--parchment-dark);
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .clock-widget {
+    background: #140b07;
+    border: 1px solid var(--brass);
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: var(--parchment);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .clock-Afternoon {
+    color: #ff7b54;
+    font-weight: bold;
+  }
+
+  .btn {
+    background: linear-gradient(180deg, #4a2a1c 0%, #2a150d 100%);
+    color: var(--brass-bright);
+    border: 1px solid var(--brass);
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s ease;
+    text-shadow: 1px 1px 2px #000;
+  }
+
+  .btn:hover {
+    background: linear-gradient(180deg, #633927 0%, #3d2014 100%);
+    border-color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .btn:active {
+    transform: translateY(0);
+  }
+
+  /* Main Layout */
+  .main-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Left Sidebar: Character & Relics */
+  .sidebar-left {
+    width: 280px;
+    background: #1c100b;
+    border-right: 2px solid var(--brass);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+  }
+
+  /* Right Sidebar: Quests & Chronicle Log */
+  .sidebar-right {
+    width: 310px;
+    background: #1c100b;
+    border-left: 2px solid var(--brass);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+  }
+
+  .panel {
+    background: rgba(44, 24, 16, 0.75);
+    border: 1px solid var(--brass);
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.6);
+  }
+
+  .panel h2 {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+    color: var(--brass-bright);
+    border-bottom: 1px solid rgba(200, 157, 84, 0.4);
+    padding-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+  }
+
+  .bar-container {
+    width: 100%;
+    height: 16px;
+    background: #0d0705;
+    border: 1px solid #6e5233;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 8px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    transition: width 0.15s ease;
+  }
+
+  .hp-fill { background: linear-gradient(90deg, #7a1818, #c93434); }
+  .ink-fill { background: linear-gradient(90deg, #1d3557, #457b9d); }
+  .xp-fill { background: linear-gradient(90deg, #6b4c1b, #d4af37); }
+
+  .bar-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    font-size: 0.72rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
+  }
+
+  .ability-card {
+    background: rgba(18, 11, 7, 0.7);
+    border: 1px solid #594126;
+    padding: 7px;
+    border-radius: 3px;
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+  }
+
+  .ability-card strong {
+    color: var(--brass-bright);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .key-badge {
+    display: inline-block;
+    background: #332016;
+    border: 1px solid var(--brass);
+    color: var(--parchment);
+    font-size: 0.7rem;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-right: 4px;
+  }
+
+  /* Center Viewport */
+  .viewport {
+    flex: 1;
+    position: relative;
+    background: #0d0806;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  canvas {
+    border: 3px ridge var(--brass);
+    box-shadow: 0 0 30px rgba(0,0,0,0.9);
+    background: #241911;
+    cursor: crosshair;
+  }
+
+  /* Quest Items */
+  .quest-item {
+    background: rgba(18, 11, 7, 0.65);
+    border-left: 3px solid var(--brass);
+    padding: 8px;
+    margin-bottom: 8px;
+    font-size: 0.82rem;
+  }
+
+  .quest-item.completed {
+    border-left-color: #4caf50;
+    opacity: 0.75;
+  }
+
+  .quest-title {
+    font-weight: bold;
+    color: var(--brass-bright);
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .quest-desc {
+    color: var(--parchment-dark);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .quest-progress {
+    font-size: 0.76rem;
+    color: #e0b973;
+    font-style: italic;
+  }
+
+  /* Relics List */
+  .relic-slot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(18, 11, 7, 0.75);
+    border: 1px solid #4a3520;
+    padding: 6px;
+    margin-bottom: 6px;
+    border-radius: 3px;
+    font-size: 0.78rem;
+  }
+
+  .relic-slot.unlocked {
+    border-color: var(--brass-bright);
+    background: rgba(65, 42, 22, 0.55);
+  }
+
+  .relic-icon {
+    width: 26px;
+    height: 26px;
+    background: #2a1a10;
+    border: 1px solid var(--brass);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Chronicle Log */
+  .log-box {
+    flex: 1;
+    background: #110906;
+    border: 1px solid #4d3622;
+    padding: 8px;
+    font-size: 0.78rem;
+    overflow-y: auto;
+    line-height: 1.35;
+    max-height: 210px;
+  }
+
+  .log-entry {
+    margin-bottom: 5px;
+    border-bottom: 1px dashed rgba(200,157,84,0.15);
+    padding-bottom: 3px;
+  }
+
+  /* Modal Overlays (Character Select & Dialogue) */
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 5, 3, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+  }
+
+  .modal-card {
+    background: linear-gradient(180deg, #2b1810 0%, #190d08 100%);
+    border: 3px double var(--brass);
+    border-radius: 6px;
+    padding: 20px;
+    max-width: 760px;
+    width: 92%;
+    box-shadow: 0 10px 40px #000;
+    color: var(--parchment);
+  }
+
+  .modal-card h2 {
+    margin-top: 0;
+    color: var(--brass-bright);
+    text-align: center;
+    font-size: 1.5rem;
+    border-bottom: 1px solid var(--brass);
+    padding-bottom: 8px;
+  }
+
+  .clerk-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .clerk-option {
+    background: rgba(20, 11, 7, 0.85);
+    border: 2px solid #634729;
+    padding: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .clerk-option:hover, .clerk-option.active {
+    border-color: var(--brass-bright);
+    background: rgba(66, 39, 23, 0.85);
+    transform: translateY(-2px);
+  }
+
+  .clerk-option h3 {
+    margin: 0 0 4px 0;
+    color: var(--brass-bright);
+    font-size: 1.05rem;
+  }
+
+  .clerk-option .subtitle {
+    font-style: italic;
+    font-size: 0.78rem;
+    color: #d6b887;
+    margin-bottom: 8px;
+  }
+
+  .clerk-option p {
+    font-size: 0.78rem;
+    margin: 4px 0;
+    line-height: 1.3;
+  }
+
+  /* Dialogue Popup inside Viewport */
+  .dialogue-box {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 86%;
+    max-width: 680px;
+    background: linear-gradient(180deg, #f5e9d3 0%, #e0cca6 100%);
+    color: var(--ink);
+    border: 3px double #3b2314;
+    border-radius: 4px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.85);
+    z-index: 30;
+    display: none;
+  }
+
+  .dialogue-speaker {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #6b1d1d;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .dialogue-text {
+    font-size: 0.92rem;
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+
+  .dialogue-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .btn-parchment {
+    background: #3b2314;
+    color: var(--parchment);
+    border: 1px solid var(--brass);
+    padding: 5px 12px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+
+  .btn-parchment:hover {
+    background: #59351f;
+  }
+
+  .zone-banner {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(24, 13, 8, 0.88);
+    border: 1px solid var(--brass);
+    padding: 5px 18px;
+    border-radius: 20px;
+    color: var(--brass-bright);
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    pointer-events: none;
+    z-index: 15;
+  }
+
+  .controls-bar {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 8, 5, 0.8);
+    border: 1px solid #594126;
+    padding: 3px 12px;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    color: var(--parchment-dark);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <h1>BARTLEBY, THE SCRIVENER</h1>
+    <span>Chronicles of Wall-Street — A Tale of Passive Resistance & Action RPG</span>
+  </div>
+  <div class="header-controls">
+    <div class="clock-widget" id="clockWidget">
+      <span>🕰️ Wall-Street Clock:</span>
+      <strong id="clockText">10:30 AM</strong>
+    </div>
+    <button class="btn" onclick="toggleTimeOfDay()" title="Advance Clock between Morning and Afternoon">⏩ Advance Hour</button>
+    <button class="btn" onclick="openClerkModal()">🎩 Switch Clerk (1-4)</button>
+    <button class="btn" onclick="downloadSelfHtml()">💾 Download .HTML Copy</button>
+  </div>
+</header>
+
+<div class="main-container">
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar-left">
+    <div class="panel">
+      <h2 id="clerkNameDisplay">Bartleby</h2>
+      <div style="font-size:0.78rem; color:#d6b887; margin-bottom:8px; font-style:italic;" id="clerkTitleDisplay">
+        The Passive-Aggressive Scrivener
+      </div>
+
+      <div class="stat-row">
+        <span>Level <strong id="lvlDisplay">1</strong></span>
+        <span>Sixpence: <strong id="goldDisplay" style="color:var(--brass-bright);">12</strong>p</span>
+      </div>
+
+      <!-- Health Bar -->
+      <div class="bar-container">
+        <div class="bar-fill hp-fill" id="hpBar" style="width:100%"></div>
+        <div class="bar-label" id="hpText">HP: 120 / 120</div>
+      </div>
+
+      <!-- Ink Bar -->
+      <div class="bar-container">
+        <div class="bar-fill ink-fill" id="inkBar" style="width:100%"></div>
+        <div class="bar-label" id="inkText">Ink: 100 / 100</div>
+      </div>
+
+      <!-- XP Bar -->
+      <div class="bar-container" style="height:12px;">
+        <div class="bar-fill xp-fill" id="xpBar" style="width:0%"></div>
+        <div class="bar-label" id="xpText" style="font-size:0.65rem;">XP: 0 / 100</div>
+      </div>
+
+      <div class="stat-row" style="margin-top:6px;">
+        <span>Melee Power:</span>
+        <strong id="meleeStatDisplay">18</strong>
+      </div>
+      <div class="stat-row">
+        <span>Ranged Power:</span>
+        <strong id="rangedStatDisplay">14</strong>
+      </div>
+      <div class="stat-row">
+        <span>Status Buff:</span>
+        <strong id="buffDisplay" style="color:#7ce38b;">Steadfast</strong>
+      </div>
+    </div>
+
+    <!-- Abilities Panel -->
+    <div class="panel">
+      <h2>Clerk Abilities</h2>
+      <div class="ability-card">
+        <strong><span class="key-badge">L-Click / Space</span> <span id="meleeName">Iron Ruler Strike</span></strong>
+        <span id="meleeDesc">Crisp close-quarters strike with a heavy desk ruler.</span>
+      </div>
+      <div class="ability-card">
+        <strong><span class="key-badge">R-Click / K</span> <span id="rangedName">Flicked Steel Nib</span></strong>
+        <span id="rangedDesc">Hurls an ink-stained steel pen nib at distant foes (8 Ink).</span>
+      </div>
+      <div class="ability-card">
+        <strong><span class="key-badge">Q / Shift</span> <span id="specialName">"I Would Prefer Not To"</span></strong>
+        <span id="specialDesc">Immunity shield, stuns nearby enemies with Existential Dread & reflects damage (30 Ink).</span>
+      </div>
+    </div>
+
+    <!-- Relics Panel -->
+    <div class="panel">
+      <h2>Law Office Relics</h2>
+      <div id="relicsContainer"></div>
+    </div>
+  </aside>
+
+  <!-- CENTER GAME CANVAS -->
+  <main class="viewport">
+    <div class="zone-banner" id="zoneBanner">No. ___ Wall Street Law Chambers</div>
+    <canvas id="gameCanvas" width="760" height="540"></canvas>
+    <div class="controls-bar">
+      Move: <b>WASD / Arrows</b> | Melee: <b>Left-Click / Space</b> | Ranged: <b>Right-Click / K</b> | Special: <b>Q / Shift</b> | Interact: <b>E</b> | Switch Clerk: <b>1-4</b>
+    </div>
+
+    <!-- Dialogue Box -->
+    <div class="dialogue-box" id="dialogueBox">
+      <div class="dialogue-speaker" id="dialogueSpeaker">The Elderly Lawyer</div>
+      <div class="dialogue-text" id="dialogueText">...</div>
+      <div class="dialogue-actions" id="dialogueActions"></div>
+    </div>
+
+    <!-- Character Selection Modal -->
+    <div class="modal-overlay" id="clerkModal">
+      <div class="modal-card">
+        <h2>Select Your Law-Office Clerk</h2>
+        <p style="text-align:center; font-size:0.85rem; margin:0 0 10px 0; color:var(--parchment-dark);">
+          Choose who shall brave the copying desks, angry litigants, and existential dread of 1853 Wall Street. You may switch clerks at any time!
+        </p>
+        <div class="clerk-grid" id="clerkGrid"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar-right">
+    <div class="panel">
+      <h2>Chancery Docket (Quests)</h2>
+      <div id="questListContainer"></div>
+    </div>
+
+    <div class="panel" style=" display:flex; flex-direction:column; flex:1;">
+      <h2>Chronicle Log</h2>
+      <div class="log-box" id="logBox"></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+// ============================================================================
+// BARTLEBY, THE SCRIVENER: CHRONICLES OF WALL-STREET (COMPLETE ENGINE)
+// ============================================================================
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Prevent right-click menu on canvas so Right-Click Ranged Attack works smoothly
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// --- CHARACTER CLASSES ---
+const CLERKS = {
+  bartleby: {
+    id: 'bartleby',
+    name: 'Bartleby',
+    title: 'The Passive-Aggressive Scrivener',
+    color: '#2e3846',
+    coatColor: '#1f242d',
+    maxHp: 130,
+    maxInk: 110,
+    speed: 2.75,
+    meleeDmg: 19,
+    rangedDmg: 16,
+    meleeName: 'Iron Ruler Strike',
+    meleeDesc: 'Measured sweep with an unyielding iron straight-edge.',
+    rangedName: 'Flicked Steel Nib',
+    rangedDesc: 'Fires a razor-sharp ink nib that pierces targets (8 Ink).',
+    specialName: '"I Would Prefer Not To"',
+    specialDesc: 'Grants 3.5s Damage Immunity, stuns nearby foes with Existential Dread, and reflects damage (30 Ink).'
+  },
+  turkey: {
+    id: 'turkey',
+    name: 'Turkey',
+    title: 'The Afternoon Berserker',
+    color: '#8c2d19',
+    coatColor: '#4d1a10',
+    maxHp: 155,
+    maxInk: 85,
+    speed: 2.6,
+    meleeDmg: 24,
+    rangedDmg: 18,
+    meleeName: 'Brass-Bound Ledger Smash',
+    meleeDesc: 'Crushing slam! Deals +45% Melee Damage after 12:00 PM.',
+    rangedName: 'Flying Inkstand',
+    rangedDesc: 'Hurls a heavy glass inkwell that explodes with splash damage (12 Ink).',
+    specialName: 'Red-Faced Zeal',
+    specialDesc: 'Unleashes an afternoon shockwave and boosts attack speed & movement for 5s (28 Ink).'
+  },
+  nippers: {
+    id: 'nippers',
+    name: 'Nippers',
+    title: 'The Dyspeptic Tactician',
+    color: '#3f5e4d',
+    coatColor: '#26382e',
+    maxHp: 115,
+    maxInk: 115,
+    speed: 3.0,
+    meleeDmg: 17,
+    rangedDmg: 15,
+    meleeName: 'Grinding Desk-Leg Sweep',
+    meleeDesc: 'Wide arc strike that slows enemies with ergonomic frustration.',
+    rangedName: 'Sharpened Quill Barrage',
+    rangedDesc: 'Fires a 3-quill spread of sharpened goose feathers (10 Ink).',
+    specialName: 'Indigestion & Ambition',
+    specialDesc: 'Grants 100% Critical Strike chance & heavy knockback for 4.5s (25 Ink).'
+  },
+  gingernut: {
+    id: 'gingernut',
+    name: 'Ginger Nut',
+    title: 'The Errand Rogue',
+    color: '#b86f28',
+    coatColor: '#6e3f14',
+    maxHp: 105,
+    maxInk: 120,
+    speed: 3.45,
+    meleeDmg: 16,
+    rangedDmg: 17,
+    meleeName: 'Cracked Walnut Knuckles',
+    meleeDesc: 'Rapid double-punch with pocketed nutshells.',
+    rangedName: 'Spiced Ginger Cake Toss',
+    rangedDesc: 'Ricocheting spiced wafer that singes foes with hot ginger (7 Ink).',
+    specialName: 'Sixpence Commission',
+    specialDesc: 'Instantly heals 40 HP, restores 30 Ink, and grants a swiftness burst (20 Ink).'
+  }
+};
+
+// --- RELICS ---
+const RELICS = [
+  { id: 'cicero', name: 'Plaster Bust of Cicero', icon: '🏛️', bonusDesc: '+25 Max HP & Rhetorical Authority', unlocked: false },
+  { id: 'inkwell', name: 'Brass Inkwell of Persistence', icon: '🖋️', bonusDesc: '+60% Ink Regeneration Rate', unlocked: false },
+  { id: 'wax', name: 'Dead-Letter Sealing Wax', icon: '🕯️', bonusDesc: '+25% Melee & Ranged Damage', unlocked: false },
+  { id: 'bullion', name: 'John Jacob Astor’s Bullion', icon: '🪙', bonusDesc: '+20% Move Speed & +15% Crit Chance', unlocked: false },
+  { id: 'parchment', name: 'The Uncopied Parchment', icon: '📜', bonusDesc: 'Attacks drain 4 HP from foes on hit', unlocked: false }
+];
+
+// --- QUESTS ---
+const QUESTS = [
+  {
+    id: 'q1',
+    title: 'I. A Motion to Copy',
+    desc: 'Speak with the Elderly Lawyer, inspect the Green Folding Screen, and repel 3 Aggressive Litigants.',
+    completed: false,
+    progressText: () => `Lawyer Spoken: ${state.flags.talkedLawyer ? 'Yes' : 'No'} | Screen Inspected: ${state.flags.inspectedScreen ? 'Yes' : 'No'} | Litigants: ${Math.min(3, state.counts.litigants)}/3`
+  },
+  {
+    id: 'q2',
+    title: 'II. Errand for Sixpence',
+    desc: 'Gather 3 Spiced Ginger Cakes in Wall Street & Landlord’s Corridor for the clerks.',
+    completed: false,
+    progressText: () => `Spiced Ginger Cakes: ${Math.min(3, state.counts.cakes)}/3`
+  },
+  {
+    id: 'q3',
+    title: 'III. Dead Letters Tell No Tales',
+    desc: 'Take the mail chute into The Dead Letter Office and defeat The Phantom Postman.',
+    completed: false,
+    progressText: () => `Phantom Postman Defeated: ${state.flags.postmanDefeated ? 'Complete' : '0/1'}`
+  },
+  {
+    id: 'q4',
+    title: 'IV. The Landlord’s Eviction Siege',
+    desc: 'Confront the Landlord in Wall Street Corridor and defeat 5 Eviction Bailiffs.',
+    completed: false,
+    progressText: () => `Eviction Bailiffs Repelled: ${Math.min(5, state.counts.bailiffs)}/5`
+  },
+  {
+    id: 'q5',
+    title: 'V. Silence in The Tombs',
+    desc: 'Enter The Tombs (Egyptian Courtyard) and vanquish The Specter of Wall Street.',
+    completed: false,
+    progressText: () => `Specter of Wall Street: ${state.flags.specterDefeated ? 'Vanquished' : 'Awaiting in The Tombs'}`
+  }
+];
+
+// --- GAME STATE ---
+const state = {
+  zone: 0, // 0: Chambers, 1: Corridor, 2: Dead Letter Office, 3: The Tombs
+  clockMinutes: 630, // 10:30 AM (720 = 12:00 PM)
+  level: 1,
+  xp: 0,
+  xpNext: 100,
+  sixpence: 12,
+  flags: {
+    talkedLawyer: false,
+    inspectedScreen: false,
+    postmanDefeated: false,
+    specterDefeated: false,
+    siegeStarted: false
+  },
+  counts: {
+    litigants: 0,
+    cakes: 0,
+    bailiffs: 0
+  }
+};
+
+const player = {
+  clerkId: 'bartleby',
+  x: 360,
+  y: 300,
+  vx: 0,
+  vy: 0,
+  radius: 15,
+  hp: 130,
+  maxHp: 130,
+  ink: 110,
+  maxInk: 110,
+  facingAngle: 0,
+  meleeCooldown: 0,
+  rangedCooldown: 0,
+  specialCooldown: 0,
+  invulnTimer: 0,
+  zealTimer: 0,
+  critBuffTimer: 0,
+  meleeSwingTimer: 0,
+  meleeSwingAngle: 0
+};
+
+// Entities
+let enemies = [];
+let projectiles = [];
+let particles = [];
+let floatingTexts = [];
+let pickups = [];
+
+// Input tracking
+const keys = {};
+const mouse = { x: 380, y: 270 };
+
+// --- ZONE DEFINITIONS ---
+const ZONES = [
+  {
+    id: 0,
+    name: 'No. ___ Wall Street Law Chambers',
+    bgColor: '#2b1b12',
+    floorColor: '#3a2418',
+    npcs: [
+      { id: 'lawyer', name: 'The Elderly Lawyer', x: 180, y: 150, color: '#d4af37', label: 'Elderly Lawyer [E]' },
+      { id: 'screen', name: 'Green Folding Screen', x: 615, y: 120, color: '#2e6f40', label: 'Green Screen [E]', isObject: true }
+    ],
+    portals: [
+      { x: 380, y: 505, targetZone: 1, spawnX: 380, spawnY: 75, label: 'To Wall Street Corridor ▼' },
+      { x: 90, y: 95, targetZone: 2, spawnX: 380, spawnY: 460, label: 'Mail Chute to Dead Letter Office ▲' }
+    ]
+  },
+  {
+    id: 1,
+    name: 'Wall Street & Landlord’s Corridor',
+    bgColor: '#232020',
+    floorColor: '#363232',
+    npcs: [
+      { id: 'landlord', name: 'The outraged Landlord', x: 380, y: 230, color: '#a83232', label: 'The Landlord [E]' }
+    ],
+    portals: [
+      { x: 380, y: 35, targetZone: 0, spawnX: 380, spawnY: 445, label: '▲ Return to Law Chambers' },
+      { x: 710, y: 270, targetZone: 3, spawnX: 80, spawnY: 270, label: 'To The Tombs ▶' }
+    ]
+  },
+  {
+    id: 2,
+    name: 'The Dead Letter Office',
+    bgColor: '#21151c',
+    floorColor: '#301d28',
+    npcs: [],
+    portals: [
+      { x: 380, y: 505, targetZone: 0, spawnX: 130, spawnY: 130, label: '▼ Return to Law Chambers' }
+    ]
+  },
+  {
+    id: 3,
+    name: 'The Tombs (Egyptian Courtyard)',
+    bgColor: '#1a241e',
+    floorColor: '#28362e',
+    npcs: [
+      { id: 'grubman', name: 'Mr. Grubman (Broad-Bean Caterer)', x: 140, y: 115, color: '#7fa668', label: 'Mr. Grubman [E]' }
+    ],
+    portals: [
+      { x: 35, y: 270, targetZone: 1, spawnX: 650, spawnY: 270, label: '◀ To Wall Street Corridor' }
+    ]
+  }
+];
+
+// --- INITIALIZATION ---
+function init() {
+  renderClerkModalOptions();
+  renderRelicsUI();
+  updateQuestUI();
+  loadZone(0, 360, 300);
+  addLog('Welcome to No. ___ Wall Street. Select your Clerk or press E near the Elderly Lawyer to begin.', '#e6bf74');
+
+  window.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    keys[k] = true;
+
+    if (k === '1') selectClerk('bartleby');
+    if (k === '2') selectClerk('turkey');
+    if (k === '3') selectClerk('nippers');
+    if (k === '4') selectClerk('gingernut');
+
+    if (k === ' ') { e.preventDefault(); performMelee(); }
+    if (k === 'k') { e.preventDefault(); performRanged(); }
+    if (k === 'q' || e.key === 'Shift') { e.preventDefault(); performSpecial(); }
+    if (k === 'e') { e.preventDefault(); interactNearest(); }
+  });
+
+  window.addEventListener('keyup', e => {
+    keys[e.key.toLowerCase()] = false;
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+
+  canvas.addEventListener('mousedown', e => {
+    if (document.getElementById('clerkModal').style.display === 'flex') return;
+    if (e.button === 0) performMelee();
+    if (e.button === 2) performRanged();
+  });
+
+  requestAnimationFrame(gameLoop);
+}
+
+// --- CLERK SELECTION ---
+function renderClerkModalOptions() {
+  const grid = document.getElementById('clerkGrid');
+  grid.innerHTML = '';
+  Object.values(CLERKS).forEach((c, idx) => {
+    const div = document.createElement('div');
+    div.className = 'clerk-option' + (player.clerkId === c.id ? ' active' : '');
+    div.innerHTML = `
+      <h3>${idx + 1}. ${c.name}</h3>
+      <div class="subtitle">${c.title}</div>
+      <p><b>Melee:</b> ${c.meleeName}</p>
+      <p><b>Ranged:</b> ${c.rangedName}</p>
+      <p><b>Special:</b> ${c.specialName}</p>
+      <p style="color:#c9b089; font-size:0.74rem;">${c.specialDesc}</p>
+    `;
+    div.onclick = () => {
+      selectClerk(c.id);
+      closeClerkModal();
+    };
+    grid.appendChild(div);
+  });
+}
+
+function openClerkModal() {
+  renderClerkModalOptions();
+  document.getElementById('clerkModal').style.display = 'flex';
+}
+
+function closeClerkModal() {
+  document.getElementById('clerkModal').style.display = 'none';
+}
+
+function selectClerk(id) {
+  const c = CLERKS[id];
+  if (!c) return;
+  const hpRatio = player.hp / player.maxHp;
+  const inkRatio = player.ink / player.maxInk;
+
+  player.clerkId = id;
+  recalcStats();
+  player.hp = Math.max(25, Math.round(player.maxHp * hpRatio));
+  player.ink = Math.max(20, Math.round(player.maxInk * inkRatio));
+
+  document.getElementById('clerkNameDisplay').textContent = c.name;
+  document.getElementById('clerkTitleDisplay').textContent = c.title;
+  document.getElementById('meleeName').textContent = c.meleeName;
+  document.getElementById('meleeDesc').textContent = c.meleeDesc;
+  document.getElementById('rangedName').textContent = c.rangedName;
+  document.getElementById('rangedDesc').textContent = c.rangedDesc;
+  document.getElementById('specialName').textContent = c.specialName;
+  document.getElementById('specialDesc').textContent = c.specialDesc;
+
+  spawnFloatingText(player.x, player.y - 24, `Switched to ${c.name}!`, '#e6bf74');
+  addLog(`Switched active clerk to ${c.name} (${c.title}).`, '#a8dadc');
+  updateStatsUI();
+}
+
+function hasRelic(id) {
+  const r = RELICS.find(r => r.id === id);
+  return r && r.unlocked;
+}
+
+function recalcStats() {
+  const c = CLERKS[player.clerkId];
+  const lvlBonus = (state.level - 1) * 12;
+  player.maxHp = c.maxHp + lvlBonus + (hasRelic('cicero') ? 25 : 0);
+  player.maxInk = c.maxInk + (state.level - 1) * 8;
+}
+
+// --- ZONE MANAGEMENT ---
+function loadZone(zoneIndex, spawnX, spawnY) {
+  state.zone = zoneIndex;
+  player.x = spawnX;
+  player.y = spawnY;
+  enemies = [];
+  projectiles = [];
+  pickups = [];
+
+  const z = ZONES[zoneIndex];
+  document.getElementById('zoneBanner').textContent = z.name;
+  closeDialogue();
+
+  // Populate zone enemies & items
+  if (zoneIndex === 0) {
+    // Law Chambers: Spawn Aggressive Litigants for Quest 1
+    spawnEnemy('litigant', 500, 360);
+    spawnEnemy('litigant', 230, 390);
+  } else if (zoneIndex === 1) {
+    // Wall Street Corridor: Litigants, Bailiffs, and Spiced Ginger Cakes
+    spawnEnemy('litigant', 210, 180);
+    spawnEnemy('bailiff', 540, 180);
+    spawnEnemy('bailiff', 520, 390);
+    if (state.counts.cakes < 3) {
+      pickups.push({ type: 'cake', x: 140, y: 130, label: 'Spiced Ginger Cake' });
+      pickups.push({ type: 'cake', x: 610, y: 140, label: 'Spiced Ginger Cake' });
+      pickups.push({ type: 'cake', x: 200, y: 430, label: 'Spiced Ginger Cake' });
+    }
+  } else if (zoneIndex === 2) {
+    // Dead Letter Office
+    spawnEnemy('clerk_ghost', 210, 210);
+    spawnEnemy('clerk_ghost', 560, 220);
+    if (!state.flags.postmanDefeated) {
+      spawnEnemy('postman_boss', 380, 130);
+      addLog('The Phantom Postman rises amidst piles of undelivered dead letters!', '#ff7b54');
+    }
+  } else if (zoneIndex === 3) {
+    // The Tombs
+    spawnEnemy('bailiff', 280, 180);
+    spawnEnemy('bailiff', 280, 370);
+    if (!state.flags.specterDefeated) {
+      spawnEnemy('specter_boss', 580, 270);
+      addLog('The Specter of Wall Street looms between the Egyptian limestone pillars!', '#d087ff');
+    }
+  }
+}
+
+function spawnEnemy(type, x, y) {
+  const templates = {
+    litigant: {
+      type: 'litigant',
+      name: 'Aggressive Litigant',
+      hp: 55,
+      maxHp: 55,
+      speed: 1.45,
+      dmg: 9,
+      radius: 14,
+      color: '#7f4f24',
+      xp: 28,
+      ranged: false
+    },
+    bailiff: {
+      type: 'bailiff',
+      name: 'Eviction Bailiff',
+      hp: 85,
+      maxHp: 85,
+      speed: 1.65,
+      dmg: 13,
+      radius: 16,
+      color: '#8b1e1e',
+      xp: 40,
+      ranged: true,
+      shootTimer: 90
+    },
+    clerk_ghost: {
+      type: 'clerk_ghost',
+      name: 'Dead-Letter Apparition',
+      hp: 75,
+      maxHp: 75,
+      speed: 1.8,
+      dmg: 12,
+      radius: 15,
+      color: '#5c6b73',
+      xp: 45,
+      ranged: true,
+      shootTimer: 75
+    },
+    postman_boss: {
+      type: 'postman_boss',
+      name: 'The Phantom Postman',
+      hp: 290,
+      maxHp: 290,
+      speed: 1.55,
+      dmg: 18,
+      radius: 24,
+      color: '#4a2545',
+      xp: 140,
+      ranged: true,
+      isBoss: true,
+      shootTimer: 50
+    },
+    specter_boss: {
+      type: 'specter_boss',
+      name: 'Specter of Wall Street',
+      hp: 420,
+      maxHp: 420,
+      speed: 1.7,
+      dmg: 22,
+      radius: 28,
+      color: '#2d1e4a',
+      xp: 250,
+      ranged: true,
+      isBoss: true,
+      shootTimer: 45
+    }
+  };
+
+  const t = templates[type];
+  enemies.push({
+    ...t,
+    x,
+    y,
+    stunTimer: 0,
+    slowTimer: 0,
+    attackCooldown: 0
+  });
+}
+
+// --- COMBAT & ABILITIES ---
+function getEffectiveMeleeDamage() {
+  const c = CLERKS[player.clerkId];
+  let dmg = c.meleeDmg + (state.level - 1) * 3;
+  // Turkey's Afternoon Buff (12:00 PM - 6:00 PM)
+  const isAfternoon = state.clockMinutes >= 720;
+  if (player.clerkId === 'turkey' && isAfternoon) {
+    dmg = Math.round(dmg * 1.45);
+  }
+  if (player.zealTimer > 0) dmg = Math.round(dmg * 1.25);
+  if (hasRelic('wax')) dmg = Math.round(dmg * 1.25);
+  return dmg;
+}
+
+function getEffectiveRangedDamage() {
+  const c = CLERKS[player.clerkId];
+  let dmg = c.rangedDmg + (state.level - 1) * 2;
+  if (hasRelic('wax')) dmg = Math.round(dmg * 1.25);
+  return dmg;
+}
+
+function performMelee() {
+  if (player.meleeCooldown > 0) return;
+  player.meleeCooldown = player.zealTimer > 0 ? 12 : 20;
+
+  const angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+  player.facingAngle = angle;
+  player.meleeSwingTimer = 10;
+  player.meleeSwingAngle = angle;
+
+  const range = 62;
+  let baseDmg = getEffectiveMeleeDamage();
+  let hitCount = 0;
+
+  enemies.forEach(en => {
+    const dx = en.x - player.x;
+    const dy = en.y - player.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist <= range + en.radius) {
+      const angleToEnemy = Math.atan2(dy, dx);
+      let diff = Math.abs( normalizeAngle(angleToEnemy - angle) );
+      if (diff <= 1.25) {
+        let isCrit = player.critBuffTimer > 0 || (hasRelic('bullion') && Math.random() < 0.15) || Math.random() < 0.08;
+        let finalDmg = isCrit ? Math.round(baseDmg * 1.75) : baseDmg;
+
+        damageEnemy(en, finalDmg, isCrit);
+        hitCount++;
+
+        // Knockback
+        const kb = player.critBuffTimer > 0 ? 18 : 8;
+        en.x += Math.cos(angleToEnemy) * kb;
+        en.y += Math.sin(angleToEnemy) * kb;
+
+        // Nippers slow effect
+        if (player.clerkId === 'nippers') {
+          en.slowTimer = 150;
+          spawnFloatingText(en.x, en.y - 18, 'Slowed!', '#8ecae6');
+        }
+      }
+    }
+  });
+
+  if (hitCount > 0 && hasRelic('parchment')) {
+    player.hp = Math.min(player.maxHp, player.hp + 4);
+  }
+}
+
+function performRanged() {
+  if (player.rangedCooldown > 0) return;
+
+  const costs = { bartleby: 8, turkey: 12, nippers: 10, gingernut: 7 };
+  const cost = costs[player.clerkId];
+  if (player.ink < cost) {
+    spawnFloatingText(player.x, player.y - 20, 'Low Ink!', '#669bbc');
+    return;
+  }
+
+  player.ink -= cost;
+  player.rangedCooldown = 18;
+  const angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+  player.facingAngle = angle;
+  const dmg = getEffectiveRangedDamage();
+
+  if (player.clerkId === 'nippers') {
+    // 3-quill spread
+    [-0.22, 0, 0.22].forEach(offset => {
+      spawnProjectile(player.x, player.y, angle + offset, 7.5, dmg, 'quill', true);
+    });
+  } else if (player.clerkId === 'turkey') {
+    // Splash inkstand
+    spawnProjectile(player.x, player.y, angle, 6.2, dmg, 'inkstand', true);
+  } else if (player.clerkId === 'gingernut') {
+    // Ginger cake toss
+    spawnProjectile(player.x, player.y, angle, 8.0, dmg, 'cake', true);
+  } else {
+    // Bartleby piercing steel nib
+    spawnProjectile(player.x, player.y, angle, 8.5, dmg, 'nib', true);
+  }
+}
+
+function performSpecial() {
+  if (player.specialCooldown > 0) return;
+
+  const costs = { bartleby: 30, turkey: 28, nippers: 25, gingernut: 20 };
+  const cost = costs[player.clerkId];
+  if (player.ink < cost) {
+    spawnFloatingText(player.x, player.y - 20, 'Need More Ink!', '#669bbc');
+    return;
+  }
+
+  player.ink -= cost;
+  player.specialCooldown = 180; // 3 seconds
+
+  if (player.clerkId === 'bartleby') {
+    player.invulnTimer = 210; // 3.5 seconds immunity & reflection
+    spawnFloatingText(player.x, player.y - 28, '"I WOULD PREFER NOT TO."', '#e0aaff');
+    addLog('Bartleby calmly states: "I would prefer not to." Nearby foes are stunned by Existential Dread!', '#d087ff');
+    createBurst(player.x, player.y, '#9d4edd', 26);
+
+    enemies.forEach(en => {
+      if (Math.hypot(en.x - player.x, en.y - player.y) < 170) {
+        en.stunTimer = 180;
+        damageEnemy(en, 22, true);
+        spawnFloatingText(en.x, en.y - 22, 'Existential Dread!', '#c77dff');
+      }
+    });
+  } else if (player.clerkId === 'turkey') {
+    player.zealTimer = 300;
+    spawnFloatingText(player.x, player.y - 28, 'RED-FACED ZEAL!', '#ff6b6b');
+    addLog('Turkey’s countenance blazes like a grate of coal! Attack speed & power surged!', '#ff7b54');
+    createBurst(player.x, player.y, '#e63946', 26);
+
+    enemies.forEach(en => {
+      if (Math.hypot(en.x - player.x, en.y - player.y) < 135) {
+        damageEnemy(en, 30, true);
+      }
+    });
+  } else if (player.clerkId === 'nippers') {
+    player.critBuffTimer = 270;
+    spawnFloatingText(player.x, player.y - 28, 'INDIGESTION & AMBITION!', '#ffd166');
+    addLog('Nippers adjusts his desk height furiously! 100% Critical Strike activated!', '#ffd166');
+    createBurst(player.x, player.y, '#ffb703', 24);
+  } else if (player.clerkId === 'gingernut') {
+    player.hp = Math.min(player.maxHp, player.hp + 45);
+    player.ink = Math.min(player.maxInk, player.ink + 35);
+    player.zealTimer = 180;
+    spawnFloatingText(player.x, player.y - 28, '+45 HP / SIXPENCE COMMISSION!', '#52b788');
+    addLog('Ginger Nut cracks a walnut and pockets a sixpence commission (+45 HP & speed burst)!', '#7ce38b');
+    createBurst(player.x, player.y, '#52b788', 24);
+  }
+}
+
+function spawnProjectile(x, y, angle, speed, dmg, subtype, fromPlayer) {
+  projectiles.push({
+    x,
+    y,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    dmg,
+    subtype,
+    fromPlayer,
+    life: 75,
+    pierced: false
+  });
+}
+
+function damageEnemy(en, amount, isCrit) {
+  en.hp -= amount;
+  createBurst(en.x, en.y, isCrit ? '#ffd166' : '#e63946', 7);
+  spawnFloatingText(en.x, en.y - 12, (isCrit ? 'CRIT ' : '') + amount, isCrit ? '#ffd166' : '#fff');
+
+  if (en.hp <= 0) {
+    handleEnemyDefeat(en);
+  }
+}
+
+function handleEnemyDefeat(en) {
+  const idx = enemies.indexOf(en);
+  if (idx !== -1) enemies.splice(idx, 1);
+
+  createBurst(en.x, en.y, '#c89d54', 18);
+  gainXP(en.xp);
+  state.sixpence += Math.floor(Math.random() * 4) + 2;
+
+  if (en.type === 'litigant') {
+    state.counts.litigants++;
+  } else if (en.type === 'bailiff') {
+    state.counts.bailiffs++;
+  } else if (en.type === 'postman_boss') {
+    state.flags.postmanDefeated = true;
+    addLog('The Phantom Postman dissolves into ashes of undelivered letters!', '#7ce38b');
+  } else if (en.type === 'specter_boss') {
+    state.flags.specterDefeated = true;
+    addLog('The Specter of Wall Street has been silenced! "Ah, Bartleby! Ah, humanity!"', '#ffd166');
+  }
+
+  checkQuestCompletions();
+}
+
+function gainXP(amount) {
+  state.xp += amount;
+  while (state.xp >= state.xpNext) {
+    state.xp -= state.xpNext;
+    state.level++;
+    state.xpNext = Math.round(state.xpNext * 1.35);
+    recalcStats();
+    player.hp = player.maxHp;
+    player.ink = player.maxInk;
+    spawnFloatingText(player.x, player.y - 34, `LEVEL UP! (Lvl ${state.level})`, '#ffd166');
+    addLog(`Promoted to Senior Chancery Clerk Level ${state.level}! All attributes increased.`, '#ffd166');
+  }
+}
+
+// --- INTERACTION & QUEST DIALOGUE ---
+function interactNearest() {
+  const z = ZONES[state.zone];
+
+  // Check Pickups first
+  for (let i = pickups.length - 1; i >= 0; i--) {
+    const p = pickups[i];
+    if (Math.hypot(p.x - player.x, p.y - player.y) < 55) {
+      pickups.splice(i, 1);
+      state.counts.cakes++;
+      player.hp = Math.min(player.maxHp, player.hp + 25);
+      spawnFloatingText(player.x, player.y - 20, 'Collected Spiced Ginger Cake!', '#ffb703');
+      addLog(`Collected a Spiced Ginger Cake (${state.counts.cakes}/3).`, '#e6bf74');
+      checkQuestCompletions();
+      return;
+    }
+  }
+
+  // Check Portals
+  for (const portal of z.portals) {
+    if (Math.hypot(portal.x - player.x, portal.y - player.y) < 55) {
+      loadZone(portal.targetZone, portal.spawnX, portal.spawnY);
+      addLog(`Entered ${ZONES[portal.targetZone].name}.`, '#d6b887');
+      return;
+    }
+  }
+
+  // Check NPCs
+  for (const npc of z.npcs) {
+    if (Math.hypot(npc.x - player.x, npc.y - player.y) < 68) {
+      openNPCDialogue(npc.id);
+      return;
+    }
+  }
+}
+
+function openNPCDialogue(npcId) {
+  const box = document.getElementById('dialogueBox');
+  const speaker = document.getElementById('dialogueSpeaker');
+  const text = document.getElementById('dialogueText');
+  const actions = document.getElementById('dialogueActions');
+  box.style.display = 'block';
+  actions.innerHTML = '';
+
+  if (npcId === 'lawyer') {
+    speaker.textContent = 'The Elderly Lawyer (Master in Chancery)';
+    state.flags.talkedLawyer = true;
+    checkQuestCompletions();
+    text.textContent = '"I am a rather elderly man. The nature of my avocations for the last thirty years has brought me into more than ordinary contact with what would seem an interesting and somewhat singular set of men: law-copyists, or scriveners. Pray, inspect the Green Folding Screen in the corner and help clear out these Aggressive Litigants!"';
+    addDialogueBtn('I shall attend to the copying.', () => closeDialogue());
+    addDialogueBtn('"I would prefer not to."', () => {
+      text.textContent = '"Prefer not to?! What do you mean? Are you moon-struck? Yet there is something about your steadfastness that disarms me..."';
+    });
+  } else if (npcId === 'screen') {
+    speaker.textContent = 'The Green Folding Screen';
+    state.flags.inspectedScreen = true;
+    player.ink = player.maxInk;
+    checkQuestCompletions();
+    text.textContent = 'Behind the high green folding screen stands Bartleby’s pine desk, facing a dead brick wall within three feet of the window panes. A small savings-bank knotted in a handkerchief rests beside a fresh bottle of ink. (Your Ink has been fully restored!)';
+    addDialogueBtn('Contemplate the Dead Brick Wall', () => closeDialogue());
+  } else if (npcId === 'landlord') {
+    speaker.textContent = 'The Outraged Wall-Street Landlord';
+    text.textContent = '"Sir! This scrivener refuses to copy, refuses to budge, and haunts the staircase day and night! I have summoned the Eviction Bailiffs to clear the premises by force!"';
+    addDialogueBtn('Summon the Eviction Siege Wave!', () => {
+      spawnEnemy('bailiff', 220, 260);
+      spawnEnemy('bailiff', 540, 260);
+      spawnEnemy('bailiff', 380, 380);
+      addLog('The Landlord blows his whistle! Three Eviction Bailiffs charge into the corridor!', '#ff6b6b');
+      closeDialogue();
+    });
+    addDialogueBtn('Leave', () => closeDialogue());
+  } else if (npcId === 'grubman') {
+    speaker.textContent = 'Mr. Grubman (The Tombs Caterer)';
+    text.textContent = '"May I set down a pleasant dinner for you today, friend? Or perhaps bind your wounds before you face the Specter of Wall Street?"';
+    addDialogueBtn('Restore Full Health & Ink (Free)', () => {
+      player.hp = player.maxHp;
+      player.ink = player.maxInk;
+      spawnFloatingText(player.x, player.y - 20, 'Fully Restored!', '#7ce38b');
+      closeDialogue();
+    });
+    addDialogueBtn('"I prefer not to dine today."', () => closeDialogue());
+  }
+}
+
+function addDialogueBtn(label, onClick) {
+  const btn = document.createElement('button');
+  btn.className = 'btn-parchment';
+  btn.textContent = label;
+  btn.onclick = onClick;
+  document.getElementById('dialogueActions').appendChild(btn);
+}
+
+function closeDialogue() {
+  document.getElementById('dialogueBox').style.display = 'none';
+}
+
+// --- QUESTS & RELIC UNLOCKS ---
+function checkQuestCompletions() {
+  // Quest 1
+  if (!QUESTS[0].completed && state.flags.talkedLawyer && state.flags.inspectedScreen && state.counts.litigants >= 3) {
+    QUESTS[0].completed = true;
+    unlockRelic('cicero');
+    gainXP(80);
+    addLog('Quest Completed: "A Motion to Copy"! Unlocked Relic: Plaster Bust of Cicero (+25 Max HP).', '#ffd166');
+  }
+  // Quest 2
+  if (!QUESTS[1].completed && state.counts.cakes >= 3) {
+    QUESTS[1].completed = true;
+    unlockRelic('inkwell');
+    gainXP(90);
+    addLog('Quest Completed: "Errand for Sixpence"! Unlocked Relic: Brass Inkwell of Persistence.', '#ffd166');
+  }
+  // Quest 3
+  if (!QUESTS[2].completed && state.flags.postmanDefeated) {
+    QUESTS[2].completed = true;
+    unlockRelic('wax');
+    gainXP(130);
+    addLog('Quest Completed: "Dead Letters Tell No Tales"! Unlocked Relic: Dead-Letter Sealing Wax (+25% Damage).', '#ffd166');
+  }
+  // Quest 4
+  if (!QUESTS[3].completed && state.counts.bailiffs >= 5) {
+    QUESTS[3].completed = true;
+    unlockRelic('bullion');
+    gainXP(150);
+    addLog('Quest Completed: "The Landlord’s Eviction Siege"! Unlocked Relic: John Jacob Astor’s Bullion.', '#ffd166');
+  }
+  // Quest 5
+  if (!QUESTS[4].completed && state.flags.specterDefeated) {
+    QUESTS[4].completed = true;
+    unlockRelic('parchment');
+    gainXP(250);
+    addLog('FINAL QUEST COMPLETED: "Silence in The Tombs"! Unlocked Relic: The Uncopied Parchment!', '#7ce38b');
+  }
+
+  recalcStats();
+  updateQuestUI();
+  renderRelicsUI();
+}
+
+function unlockRelic(id) {
+  const r = RELICS.find(item => item.id === id);
+  if (r) r.unlocked = true;
+}
+
+function renderRelicsUI() {
+  const container = document.getElementById('relicsContainer');
+  container.innerHTML = '';
+  RELICS.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'relic-slot' + (r.unlocked ? ' unlocked' : '');
+    div.innerHTML = `
+      <div class="relic-icon">${r.unlocked ? r.icon : '🔒'}</div>
+      <div>
+        <div style="font-weight:bold; color:${r.unlocked ? 'var(--brass-bright)' : '#887456'}">${r.name}</div>
+        <div style="font-size:0.72rem; color:var(--parchment-dark)">${r.bonusDesc}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function updateQuestUI() {
+  const container = document.getElementById('questListContainer');
+  container.innerHTML = '';
+  QUESTS.forEach(q => {
+    const div = document.createElement('div');
+    div.className = 'quest-item' + (q.completed ? ' completed' : '');
+    div.innerHTML = `
+      <div class="quest-title">
+        <span>${q.title}</span>
+        <span>${q.completed ? '✔' : '⏳'}</span>
+      </div>
+      <div class="quest-desc">${q.desc}</div>
+      <div class="quest-progress">${q.completed ? 'Recorded in Chancery Ledger' : q.progressText()}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// --- CLOCK & TIME OF DAY ---
+function toggleTimeOfDay() {
+  state.clockMinutes += 120; // Advance 2 hours
+  if (state.clockMinutes >= 1080) state.clockMinutes = 540; // Loop 6:00 PM -> 9:00 AM
+  updateClockUI();
+}
+
+function updateClockUI() {
+  const totalMins = Math.floor(state.clockMinutes);
+  let hours = Math.floor(totalMins / 60);
+  const mins = totalMins % 60;
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHour = hours > 12 ? hours - 12 : hours;
+  const displayMin = mins < 10 ? '0' + mins : mins;
+
+  const clockEl = document.getElementById('clockText');
+  clockEl.textContent = `${displayHour}:${displayMin} ${ampm}`;
+  if (hours >= 12) {
+    clockEl.className = 'clock-Afternoon';
+  } else {
+    clockEl.className = '';
+  }
+}
+
+// --- MAIN UPDATE LOOP ---
+let frameCount = 0;
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+function update() {
+  frameCount++;
+
+  // Advance Wall Street Clock slowly
+  if (frameCount % 90 === 0) {
+    state.clockMinutes += 5;
+    if (state.clockMinutes >= 1080) state.clockMinutes = 540;
+    updateClockUI();
+  }
+
+  // Passive Ink Regeneration
+  const inkRegen = hasRelic('inkwell') ? 0.14 : 0.085;
+  player.ink = Math.min(player.maxInk, player.ink + inkRegen);
+
+  // Decrement Timers
+  if (player.meleeCooldown > 0) player.meleeCooldown--;
+  if (player.rangedCooldown > 0) player.rangedCooldown--;
+  if (player.specialCooldown > 0) player.specialCooldown--;
+  if (player.invulnTimer > 0) player.invulnTimer--;
+  if (player.zealTimer > 0) player.zealTimer--;
+  if (player.critBuffTimer > 0) player.critBuffTimer--;
+  if (player.meleeSwingTimer > 0) player.meleeSwingTimer--;
+
+  // Player Movement
+  let mx = 0, my = 0;
+  if (keys['w'] || keys['arrowup']) my -= 1;
+  if (keys['s'] || keys['arrowdown']) my += 1;
+  if (keys['a'] || keys['arrowleft']) mx -= 1;
+  if (keys['d'] || keys['arrowright']) mx += 1;
+
+  if (mx !== 0 || my !== 0) {
+    const len = Math.hypot(mx, my);
+    let spd = CLERKS[player.clerkId].speed;
+    if (player.zealTimer > 0) spd *= 1.3;
+    if (hasRelic('bullion')) spd *= 1.2;
+    player.x += (mx / len) * spd;
+    player.y += (my / len) * spd;
+  }
+
+  // Keep player inside room walls
+  player.x = Math.max(36, Math.min(canvas.width - 36, player.x));
+  player.y = Math.max(36, Math.min(canvas.height - 36, player.y));
+
+  // Respawn ambient litigants/bailiffs if needed for quests
+  if (frameCount % 300 === 0 && enemies.length < 2) {
+    if (state.zone === 0 && state.counts.litigants < 3) {
+      spawnEnemy('litigant', 480, 380);
+    } else if (state.zone === 1 && state.counts.bailiffs < 5) {
+      spawnEnemy('bailiff', 560, 260);
+    }
+  }
+
+  // Update Enemies
+  enemies.forEach(en => {
+    if (en.stunTimer > 0) {
+      en.stunTimer--;
+      return;
+    }
+
+    const dx = player.x - en.x;
+    const dy = player.y - en.y;
+    const dist = Math.hypot(dx, dy);
+    let spd = en.speed * (en.slowTimer > 0 ? 0.45 : 1);
+    if (en.slowTimer > 0) en.slowTimer--;
+
+    if (dist > en.radius + player.radius) {
+      en.x += (dx / dist) * spd;
+      en.y += (dy / dist) * spd;
+    }
+
+    // Contact Damage
+    if (en.attackCooldown > 0) en.attackCooldown--;
+    if (dist <= en.radius + player.radius + 4 && en.attackCooldown <= 0) {
+      en.attackCooldown = 45;
+      damagePlayer(en.dmg, en);
+    }
+
+    // Enemy Ranged Attacks
+    if (en.ranged) {
+      en.shootTimer--;
+      if (en.shootTimer <= 0 && dist < 380) {
+        const ang = Math.atan2(dy, dx);
+        if (en.isBoss) {
+          [-0.25, 0, 0.25].forEach(off => {
+            spawnProjectile(en.x, en.y, ang + off, 4.6, en.dmg, 'writ', false);
+          });
+          en.shootTimer = 65;
+        } else {
+          spawnProjectile(en.x, en.y, ang, 4.2, en.dmg, 'writ', false);
+          en.shootTimer = 95;
+        }
+      }
+    }
+  });
+
+  // Update Projectiles
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const pr = projectiles[i];
+    pr.x += pr.vx;
+    pr.y += pr.vy;
+    pr.life--;
+
+    if (pr.life <= 0 || pr.x < 20 || pr.x > canvas.width - 20 || pr.y < 20 || pr.y > canvas.height - 20) {
+      projectiles.splice(i, 1);
+      continue;
+    }
+
+    if (pr.fromPlayer) {
+      for (let j = enemies.length - 1; j >= 0; j--) {
+        const en = enemies[j];
+        if (Math.hypot(en.x - pr.x, en.y - pr.y) < en.radius + 8) {
+          let isCrit = player.critBuffTimer > 0 || (hasRelic('bullion') && Math.random() < 0.15);
+          damageEnemy(en, isCrit ? Math.round(pr.dmg * 1.7) : pr.dmg, isCrit);
+
+          if (pr.subtype === 'inkstand') {
+            // Turkey splash damage
+            createBurst(pr.x, pr.y, '#1d3557', 16);
+            enemies.forEach(other => {
+              if (other !== en && Math.hypot(other.x - pr.x, other.y - pr.y) < 75) {
+                damageEnemy(other, Math.round(pr.dmg * 0.75), false);
+              }
+            });
+          }
+
+          if (pr.subtype === 'nib' && !pr.pierced) {
+            pr.pierced = true; // Bartleby's nib pierces one target
+          } else {
+            projectiles.splice(i, 1);
+          }
+          break;
+        }
+      }
+    } else {
+      // Enemy projectile hitting player
+      if (Math.hypot(player.x - pr.x, player.y - pr.y) < player.radius + 7) {
+        damagePlayer(pr.dmg, null);
+        projectiles.splice(i, 1);
+      }
+    }
+  }
+
+  // Update Particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const pt = particles[i];
+    pt.x += pt.vx;
+    pt.y += pt.vy;
+    pt.life--;
+    if (pt.life <= 0) particles.splice(i, 1);
+  }
+
+  // Update Floating Texts
+  for (let i = floatingTexts.length - 1; i >= 0; i--) {
+    const ft = floatingTexts[i];
+    ft.y -= 0.7;
+    ft.life--;
+    if (ft.life <= 0) floatingTexts.splice(i, 1);
+  }
+
+  updateStatsUI();
+}
+
+function damagePlayer(amount, attacker) {
+  if (player.invulnTimer > 0) {
+    spawnFloatingText(player.x, player.y - 16, 'PREFER NOT TO (Reflected!)', '#e0aaff');
+    if (attacker) {
+      damageEnemy(attacker, amount * 2, true);
+    }
+    return;
+  }
+
+  player.hp -= amount;
+  createBurst(player.x, player.y, '#e63946', 8);
+  spawnFloatingText(player.x, player.y - 14, `-${amount} HP`, '#ff6b6b');
+
+  if (player.hp <= 0) {
+    player.hp = player.maxHp;
+    player.ink = player.maxInk;
+    loadZone(0, 360, 300);
+    addLog('Exhausted by Chancery toil, you awaken back beside the Green Folding Screen.', '#ff7b54');
+  }
+}
+
+// --- RENDERING ---
+function draw() {
+  const z = ZONES[state.zone];
+
+  // Outer Wall Background
+  ctx.fillStyle = z.bgColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Inner Floor
+  ctx.fillStyle = z.floorColor;
+  ctx.fillRect(24, 24, canvas.width - 48, canvas.height - 48);
+
+  // Floor Grid / Wood Planks
+  ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+  ctx.lineWidth = 1;
+  for (let x = 24; x < canvas.width - 24; x += 48) {
+    ctx.beginPath(); ctx.moveTo(x, 24); ctx.lineTo(x, canvas.height - 24); ctx.stroke();
+  }
+  for (let y = 24; y < canvas.height - 24; y += 48) {
+    ctx.beginPath(); ctx.moveTo(24, y); ctx.lineTo(canvas.width - 24, y); ctx.stroke();
+  }
+
+  // Zone-specific Architectural Details
+  drawZoneDecor(state.zone);
+
+  // Draw Portals
+  z.portals.forEach(p => {
+    ctx.save();
+    ctx.fillStyle = 'rgba(200, 157, 84, 0.22)';
+    ctx.strokeStyle = '#e6bf74';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 26, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#f2e6cf';
+    ctx.font = 'bold 11px Georgia';
+    ctx.textAlign = 'center';
+    ctx.fillText(p.label, p.x, p.y - 32);
+    ctx.restore();
+  });
+
+  // Draw Pickups
+  pickups.forEach(p => {
+    ctx.save();
+    ctx.fillStyle = '#d97724';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffd166';
+    ctx.stroke();
+    ctx.fillStyle = '#ffe5b4';
+    ctx.font = '11px Georgia';
+    ctx.textAlign = 'center';
+    ctx.fillText('🥨 ' + p.label + ' [E]', p.x, p.y - 15);
+    ctx.restore();
+  });
+
+  // Draw NPCs
+  z.npcs.forEach(npc => {
+    ctx.save();
+    if (npc.id === 'screen') {
+      // Draw the iconic Green Folding Screen
+      ctx.fillStyle = '#2e6f40';
+      ctx.strokeStyle = '#c89d54';
+      ctx.lineWidth = 2;
+      ctx.fillRect(npc.x - 28, npc.y - 18, 56, 36);
+      ctx.strokeRect(npc.x - 28, npc.y - 18, 56, 36);
+    } else {
+      ctx.fillStyle = npc.color;
+      ctx.beginPath();
+      ctx.arc(npc.x, npc.y, 16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#ffd166';
+    ctx.font = 'bold 11px Georgia';
+    ctx.textAlign = 'center';
+    ctx.fillText(npc.label, npc.x, npc.y - 24);
+    ctx.restore();
+  });
+
+  // Draw Enemies
+  enemies.forEach(en => {
+    ctx.save();
+    ctx.fillStyle = en.color;
+    ctx.beginPath();
+    ctx.arc(en.x, en.y, en.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = en.isBoss ? '#ffd166' : '#111';
+    ctx.lineWidth = en.isBoss ? 3 : 1.5;
+    ctx.stroke();
+
+    if (en.stunTimer > 0) {
+      ctx.strokeStyle = '#c77dff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(en.x, en.y, en.radius + 6, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Enemy HP Bar
+    const bw = en.isBoss ? 64 : 36;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(en.x - bw / 2, en.y - en.radius - 12, bw, 5);
+    ctx.fillStyle = '#e63946';
+    ctx.fillRect(en.x - bw / 2, en.y - en.radius - 12, bw * (en.hp / en.maxHp), 5);
+
+    ctx.fillStyle = '#f2e6cf';
+    ctx.font = en.isBoss ? 'bold 11px Georgia' : '10px Georgia';
+    ctx.textAlign = 'center';
+    ctx.fillText(en.name, en.x, en.y - en.radius - 16);
+    ctx.restore();
+  });
+
+  // Draw Player
+  drawPlayer();
+
+  // Draw Projectiles
+  projectiles.forEach(pr => {
+    ctx.save();
+    if (pr.fromPlayer) {
+      ctx.fillStyle = pr.subtype === 'cake' ? '#f4a261' : pr.subtype === 'inkstand' ? '#457b9d' : '#e6bf74';
+      ctx.beginPath();
+      ctx.arc(pr.x, pr.y, pr.subtype === 'inkstand' ? 7 : 5, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Red Legal Writ projectile
+      ctx.fillStyle = '#ff4d6d';
+      ctx.fillRect(pr.x - 5, pr.y - 5, 10, 10);
+    }
+    ctx.restore();
+  });
+
+  // Draw Particles
+  particles.forEach(pt => {
+    ctx.fillStyle = pt.color;
+    ctx.fillRect(pt.x, pt.y, 3, 3);
+  });
+
+  // Draw Floating Combat Texts
+  floatingTexts.forEach(ft => {
+    ctx.save();
+    ctx.fillStyle = ft.color;
+    ctx.font = 'bold 12px Georgia';
+    ctx.textAlign = 'center';
+    ctx.fillText(ft.text, ft.x, ft.y);
+    ctx.restore();
+  });
+}
+
+function drawZoneDecor(zoneId) {
+  ctx.save();
+  if (zoneId === 0) {
+    // Law Chambers Desks & Dead Brick Wall Window
+    ctx.fillStyle = '#4a2a1c';
+    ctx.strokeStyle = '#c89d54';
+    // Turkey & Nippers Desks
+    ctx.fillRect(290, 190, 75, 42);
+    ctx.strokeRect(290, 190, 75, 42);
+    ctx.fillRect(420, 190, 75, 42);
+    ctx.strokeRect(420, 190, 75, 42);
+    ctx.fillStyle = '#c9b089';
+    ctx.font = '10px Georgia';
+    ctx.textAlign = 'center';
+    ctx.fillText("Turkey's Desk", 327, 215);
+    ctx.fillText("Nippers's Desk", 457, 215);
+
+    // Dead Brick Wall Window behind Green Screen
+    ctx.fillStyle = '#6b2d26';
+    ctx.fillRect(670, 70, 55, 95);
+    ctx.strokeStyle = '#9e826c';
+    ctx.strokeRect(670, 70, 55, 95);
+    ctx.fillStyle = '#dcb995';
+    ctx.fillText('Dead Brick Wall', 697, 62);
+  } else if (zoneId === 2) {
+    // Dead Letter Office Hearths & Letter Piles
+    ctx.fillStyle = '#d8c3a5';
+    ctx.fillRect(140, 340, 46, 32);
+    ctx.fillRect(560, 340, 46, 32);
+    ctx.fillStyle = '#e6bf74';
+    ctx.font = '10px Georgia';
+    ctx.textAlign = 'center';
+    ctx.fillText('Undelivered Letters', 163, 332);
+    ctx.fillText('Dead Parcels', 583, 332);
+  } else if (zoneId === 3) {
+    // The Tombs Egyptian Pillars & Patch of Grass
+    ctx.fillStyle = '#386641';
+    ctx.beginPath();
+    ctx.ellipse(380, 270, 95, 55, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#a7c957';
+    ctx.font = 'italic 11px Georgia';
+    ctx.textAlign = 'center';
+    ctx.fillText('Soft Egyptian Courtyard Turf', 380, 274);
+
+    // Massive Stone Pillars
+    ctx.fillStyle = '#5c6760';
+    [[210, 110], [490, 110], [210, 420], [490, 420]].forEach(([px, py]) => {
+      ctx.fillRect(px - 22, py - 22, 44, 44);
+      ctx.strokeStyle = '#95a39a';
+      ctx.strokeRect(px - 22, py - 22, 44, 44);
+    });
+  }
+  ctx.restore();
+}
+
+function drawPlayer() {
+  const c = CLERKS[player.clerkId];
+  ctx.save();
+
+  // Melee Swing Arc
+  if (player.meleeSwingTimer > 0) {
+    ctx.strokeStyle = 'rgba(230, 191, 116, 0.75)';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, 48, player.meleeSwingAngle - 0.85, player.meleeSwingAngle + 0.85);
+    ctx.stroke();
+  }
+
+  // Invulnerability Aura ("I Would Prefer Not To")
+  if (player.invulnTimer > 0) {
+    ctx.strokeStyle = '#c77dff';
+    ctx.fillStyle = 'rgba(157, 78, 221, 0.22)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius + 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  // Afternoon Turkey Red-Faced Aura
+  const isTurkeyAfternoon = player.clerkId === 'turkey' && state.clockMinutes >= 720;
+  if (isTurkeyAfternoon || player.zealTimer > 0) {
+    ctx.strokeStyle = '#ff6b6b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius + 5, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Clerk Body
+  ctx.fillStyle = c.color;
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#e6bf74';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // 1850s Stovepipe Hat / Cap Accent
+  ctx.fillStyle = c.coatColor;
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, 8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Clerk Nameplate
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 11px Georgia';
+  ctx.textAlign = 'center';
+  ctx.fillText(c.name, player.x, player.y - 21);
+  ctx.restore();
+}
+
+// --- UI HELPERS ---
+function updateStatsUI() {
+  document.getElementById('lvlDisplay').textContent = state.level;
+  document.getElementById('goldDisplay').textContent = state.sixpence;
+
+  const hpPct = Math.max(0, (player.hp / player.maxHp) * 100);
+  document.getElementById('hpBar').style.width = hpPct + '%';
+  document.getElementById('hpText').textContent = `HP: ${Math.ceil(player.hp)} / ${player.maxHp}`;
+
+  const inkPct = Math.max(0, (player.ink / player.maxInk) * 100);
+  document.getElementById('inkBar').style.width = inkPct + '%';
+  document.getElementById('inkText').textContent = `Ink: ${Math.floor(player.ink)} / ${player.maxInk}`;
+
+  const xpPct = Math.min(100, (state.xp / state.xpNext) * 100);
+  document.getElementById('xpBar').style.width = xpPct + '%';
+  document.getElementById('xpText').textContent = `XP: ${state.xp} / ${state.xpNext}`;
+
+  document.getElementById('meleeStatDisplay').textContent = getEffectiveMeleeDamage();
+  document.getElementById('rangedStatDisplay').textContent = getEffectiveRangedDamage();
+
+  let buffText = 'Steadfast';
+  if (player.invulnTimer > 0) buffText = 'Preferring Not To (Immune)';
+  else if (player.critBuffTimer > 0) buffText = '100% Critical Ambition';
+  else if (player.zealTimer > 0) buffText = 'Red-Faced Zeal!';
+  else if (player.clerkId === 'turkey' && state.clockMinutes >= 720) buffText = 'Afternoon Temper (+45% Melee)';
+  document.getElementById('buffDisplay').textContent = buffText;
+}
+
+function createBurst(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const spd = Math.random() * 3 + 0.8;
+    particles.push({
+      x,
+      y,
+      vx: Math.cos(ang) * spd,
+      vy: Math.sin(ang) * spd,
+      color,
+      life: 22 + Math.floor(Math.random() * 14)
+    });
+  }
+}
+
+function spawnFloatingText(x, y, text, color) {
+  floatingTexts.push({ x, y, text, color, life: 45 });
+}
+
+function addLog(msg, color = '#f2e6cf') {
+  const box = document.getElementById('logBox');
+  const div = document.createElement('div');
+  div.className = 'log-entry';
+  div.style.color = color;
+  div.textContent = `• ${msg}`;
+  box.prepend(div);
+}
+
+function normalizeAngle(a) {
+  while (a > Math.PI) a -= Math.PI * 2;
+  while (a < -Math.PI) a += Math.PI * 2;
+  return a;
+}
+
+// Self-download helper so players can save the HTML file directly from inside the browser
+function downloadSelfHtml() {
+  const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  const blob = new Blob([htmlContent], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bartleby-rpg.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+init();
+</script>
+</body>
+</html>
