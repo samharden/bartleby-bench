@@ -6,7 +6,7 @@ Three AI models were given the same prompt:
 
 Each produced a single self-contained HTML file. They're collected here, unedited, so anyone can play them side by side.
 
-**Play them:** open the GitHub Pages site for this repo (Settings → Pages), or open any `games/*/index.html` locally in a browser.
+**Play them:** https://samharden.github.io/bartleby-bench/ (or open any `games/*/index.html` locally in a browser).
 
 | Model | Game | Original filename |
 | --- | --- | --- |
